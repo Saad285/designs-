@@ -37,6 +37,10 @@ gsap.ticker.add((time) => {
 
 gsap.ticker.lagSmoothing(0);
 
+window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
+});
+
 // -----------------------------------------------------
 // Custom Cursor
 // -----------------------------------------------------
@@ -254,7 +258,7 @@ const scrollTween = gsap.to(slides, {
     scrollTrigger: {
         trigger: ".brands-section",
         pin: true,
-        scrub: 1,
+        scrub: true,
         end: () => "+=" + horizontalContainer.offsetWidth,
     }
 });
@@ -825,7 +829,7 @@ if (lusionSec) {
             trigger: "#lusion-scroll-track",
             start: "top top",
             end: "bottom bottom",
-            scrub: 1
+            scrub: true
         }
     });
 
