@@ -88,7 +88,8 @@ const initTextShatter = () => {
             // Mouse Repulsion
             vec3 mPos = vec3(mousePos.x, mousePos.y, 0.0);
             float dist = distance(p, mPos);
-            if (dist < 15.0) {
+            // Protect against divide by zero or extreme proximity
+            if (dist < 15.0 && dist > 0.1) {
                 vec3 dir = normalize(p - mPos);
                 v += dir * (15.0 - dist) * 0.1;
             }
@@ -173,13 +174,15 @@ const initTextShatter = () => {
         particleUniforms = {
             texturePosition: { value: null },
             color1: { value: new THREE.Color(0xffffff) },
-            color2: { value: new THREE.Color(0xddeeff) }
+            color2: { value: new THREE.Color(0xddeeff) },
+            uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) }
         };
 
         const material = new THREE.ShaderMaterial({
             uniforms: particleUniforms,
             vertexShader: `
                 uniform sampler2D texturePosition;
+                uniform float uPixelRatio;
                 attribute float aRand;
                 varying float vRand;
                 
@@ -189,8 +192,11 @@ const initTextShatter = () => {
                     vec3 pos = posTemp.xyz;
                     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
                     
-                    // Point size
-                    gl_PointSize = (1.5 + vRand * 2.5) * (100.0 / -mvPosition.z);
+                    // Point size with Device Pixel Ratio scaling
+                    gl_PointSize = (1.5 + vRand * 2.5) * (100.0 / -mvPosition.z) * uPixelRatio;
+                    // Clamp to prevent massive blobs
+                    gl_PointSize = clamp(gl_PointSize, 1.0, 15.0 * uPixelRatio);
+                    
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
