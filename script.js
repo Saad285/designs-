@@ -800,9 +800,9 @@ function initStyleScoutSection() {
     if (cards.length > 0) {
         cards.forEach((card, i) => {
             gsap.fromTo(card, 
-                { y: 100, rotateX: 5, scale: 0.9 },
+                { y: 100, rotateX: 5, scale: 0.9, opacity: 0 },
                 {
-                    y: 0, rotateX: 0, scale: 1,
+                    y: 0, rotateX: 0, scale: 1, opacity: 1,
                     ease: "none",
                     scrollTrigger: {
                         trigger: card,
