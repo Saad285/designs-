@@ -1001,8 +1001,14 @@ body.mega-menu-open {
    LUSION-INSPIRED EXPERIENCE SECTION (Pinned Layered Stages & Scrubbed Master TL)
    ========================================================================== */
 
+.lusion-scroll-track {
+    position: relative;
+    width: 100%;
+    height: 600vh; /* Equivalent to +=5000 in GSAP */
+}
+
 .lusion-experience {
-    position: relative; width: 100%; height: 100vh;
+    position: sticky; top: 0; left: 0; width: 100%; height: 100vh;
     background: #040407; color: #fff;
     overflow: hidden;
 }

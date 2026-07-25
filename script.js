@@ -822,12 +822,10 @@ if (lusionSec) {
     // 1. Setup Master Pinned GSAP ScrollTrigger Scrubbed Timeline
     const masterTL = gsap.timeline({
         scrollTrigger: {
-            trigger: "#lusion-experience",
+            trigger: "#lusion-scroll-track",
             start: "top top",
-            end: "+=5000",
-            pin: true,
-            scrub: 1,
-            anticipatePin: 1
+            end: "bottom bottom",
+            scrub: 1
         }
     });
 
