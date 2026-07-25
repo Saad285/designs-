@@ -252,14 +252,15 @@ tl.to(".hero-content .char-inner", { y: 0, rotation: 0, duration: 1.2, stagger: 
 const horizontalContainer = document.querySelector('.horizontal-container');
 const slides = gsap.utils.toArray('.brand-slide');
 
-const scrollTween = gsap.to(slides, {
-    xPercent: -100 * (slides.length - 1),
+const scrollTween = gsap.to(horizontalContainer, {
+    x: () => -(horizontalContainer.scrollWidth - window.innerWidth),
     ease: "none",
     scrollTrigger: {
         trigger: ".brands-section",
         pin: true,
         scrub: true,
-        end: () => "+=" + horizontalContainer.offsetWidth,
+        end: "+=3000",
+        anticipatePin: 1
     }
 });
 

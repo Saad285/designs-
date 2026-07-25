@@ -180,6 +180,9 @@ const initTextShatter = () => {
 
         const material = new THREE.ShaderMaterial({
             uniforms: particleUniforms,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
             vertexShader: `
                 uniform sampler2D texturePosition;
                 uniform float uPixelRatio;
@@ -206,12 +209,14 @@ const initTextShatter = () => {
                 varying float vRand;
                 
                 void main() {
-                    // Circle
-                    vec2 coord = gl_PointCoord - vec2(0.5);
-                    if(length(coord) > 0.5) discard;
+                    // Glow Circle
+                    float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
+                    float alpha = 0.05 / distanceToCenter - 0.1;
+                    
+                    if (alpha < 0.01) discard;
                     
                     vec3 color = mix(color1, color2, vRand);
-                    gl_FragColor = vec4(color, 1.0);
+                    gl_FragColor = vec4(color, alpha);
                 }
             `,
             transparent: true,
