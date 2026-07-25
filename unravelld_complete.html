@@ -1,0 +1,3265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>unravelld.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --text-main: #2b2626; 
+    --text-muted: #5e5454;
+    --bg-color: #f7ece8; 
+    
+    --font-serif: 'Instrument Serif', 'Cormorant Garamond', serif;
+    --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+    
+    /* Apple iOS / iPhone Glassmorphism */
+    --glass-bg-light: rgba(255, 255, 255, 0.18);
+    --glass-border-light: rgba(255, 255, 255, 0.35);
+    --glass-bg-dark: rgba(20, 20, 22, 0.35);
+    --glass-border-dark: rgba(255, 255, 255, 0.12);
+    --ios-blur: blur(40px) saturate(200%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { overflow-x: hidden; }
+
+body {
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    cursor: none;
+    transition: background-color 1.2s var(--ease-expo), color 1s ease;
+}
+
+/* Video Background */
+.scene-container { position: fixed; inset: 0; z-index: -1; background: #000; }
+.video-bg {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top: 0; left: 0;
+}
+#ripple-canvas {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+.scene-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 100%); pointer-events: none; }
+.grain { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); opacity: 0.25; mix-blend-mode: overlay; pointer-events: none; z-index: 999; }
+
+/* Cursor */
+.cursor { width: 8px; height: 8px; background: #fff; border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; transform: translate(-50%, -50%); z-index: 9999; transition: transform 0.2s var(--ease-out), background 0.3s ease, box-shadow 0.3s ease; mix-blend-mode: difference; }
+.cursor.hover { transform: translate(-50%, -50%) scale(6); background: rgba(255,255,255,0.4); mix-blend-mode: normal; backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur); border: 1px solid rgba(255,255,255,0.2); }
+.cursor.light-mode { background: #fff; } 
+
+/* Navigation (iOS Frosted Pill) */
+.nav {
+    position: fixed; top: 2rem; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 1400px; padding: 1rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 100;
+    background: var(--glass-bg-light);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid var(--glass-border-light);
+    border-radius: 100px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: color 1s ease, background 1s ease, border-color 1s ease, box-shadow 1s ease;
+}
+body[data-theme="dark"] .nav { background: var(--glass-bg-dark); border-color: var(--glass-border-dark); box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+.logo {
+    font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 1.6rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #d8d3e2 22%,
+        #ffffff 45%,
+        #7c7487 72%,
+        #eeeaf5 100%
+    );
+    background-size: 100% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.45));
+    -webkit-font-smoothing: antialiased;
+}
+.logo .dot {
+    font-size: 1.6rem;
+    line-height: 0;
+    margin-left: 1px;
+    font-style: normal;
+    background: linear-gradient(180deg, #ffffff 0%, #00d2ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.nav-right { display: flex; align-items: center; gap: 2.5rem; }
+.nav-link { text-decoration: none; color: rgba(255,255,255,0.9); font-size: 0.95rem; font-weight: 500; font-family: 'Inter', sans-serif; transition: color 0.3s, text-shadow 0.3s; text-shadow: 0 1px 5px rgba(0,0,0,0.3); -webkit-font-smoothing: antialiased; }
+.nav-link:hover { color: #fff; text-shadow: 0 2px 10px rgba(255,255,255,0.4); }
+.nav-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: none; transition: background 0.3s;
+}
+.nav-circle:hover { background: rgba(255,255,255,0.25); }
+.nav-circle .dots { display: flex; gap: 4px; }
+.nav-circle .dots span { width: 4px; height: 4px; background: #fff; border-radius: 50%; }
+
+/* Text Split Animation Styles */
+.char-mask { overflow: hidden; display: inline-block; vertical-align: top; }
+.char-inner { display: inline-block; transform: translateY(110%) rotate(5deg); transform-origin: top left; }
+.line-mask { overflow: hidden; display: block; }
+.line-inner { display: block; transform: translateY(110%); }
+
+/* Hero */
+.hero-section { position: relative; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 10; }
+.hero-content { display: flex; flex-direction: column; align-items: center; margin-top: 4rem; }
+.subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 400; margin-bottom: 1.5rem; color: rgba(255,255,255,0.6); }
+.title { line-height: 0.9; margin-bottom: 3rem; }
+
+/* Hero White Typography with Watery Chromatic Effect */
+.hero-content .char-inner {
+    color: transparent;
+    background: linear-gradient(
+        120deg,
+        rgba(180,170,165,0.9) 0%,
+        rgba(255,255,255,0.95) 15%,
+        rgba(140,130,140,0.85) 30%,
+        rgba(255,255,255,1) 45%,
+        rgba(160,155,170,0.9) 55%,
+        rgba(200,180,190,0.85) 70%,
+        rgba(255,255,255,0.95) 85%,
+        rgba(170,165,175,0.9) 100%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: waterShine 6s ease-in-out infinite;
+    filter: drop-shadow(2px 0 0 rgba(255,100,150,0.12)) drop-shadow(-2px 0 0 rgba(100,200,255,0.12)) drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+@keyframes waterShine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.serif-part { font-family: var(--font-serif); font-style: italic; font-weight: 400; font-size: clamp(3rem, 6vw, 6rem); letter-spacing: -0.02em; }
+.sans-part { font-family: var(--font-sans); font-weight: 500; font-size: clamp(5rem, 11vw, 11rem); letter-spacing: -0.04em; display: block; margin-top: -0.1em; }
+
+.pill-btn {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 1rem 2.2rem; border-radius: 100px;
+    font-family: var(--font-sans); font-size: 0.95rem; font-weight: 400;
+    color: #fff; display: flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
+    cursor: none; transition: background 0.3s, box-shadow 0.3s;
+}
+.pill-btn:hover { background: rgba(255,255,255,0.22); box-shadow: 0 8px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2); }
+
+/* Corner Widgets (iOS Glass) */
+.widget-bottom-left { position: absolute; bottom: 2.5rem; left: 3.5rem; display: flex; align-items: center; gap: 1rem; }
+.icon-bars {
+    width: 45px; height: 45px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+    display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding-bottom: 12px;
+}
+.icon-bars span { width: 3px; background: #fff; border-radius: 2px; }
+.icon-bars span:nth-child(1) { height: 8px; } .icon-bars span:nth-child(2) { height: 14px; } .icon-bars span:nth-child(3) { height: 10px; }
+.widget-text {
+    font-size: 0.9rem; font-weight: 400; color: #fff;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.5rem 1.5rem; border-radius: 100px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.widget-bottom-center {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    width: 45px; height: 45px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+}
+.widget-bottom-right { position: absolute; bottom: 2.5rem; right: 3.5rem; font-size: 0.9rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+
+/* ------------------------------------------------------------------
+   Explore Brands Section (Our Houses)
+------------------------------------------------------------------ */
+.brands-section {
+    position: relative;
+    width: 100%;
+    z-index: 100;
+    background: #111118;
+    margin-top: 0;
+    clear: both;
+}
+.horizontal-container { display: flex; width: 400vw; height: 100vh; }
+.brand-slide { width: 100vw; height: 100vh; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 6vw; position: relative; }
+.brand-content { width: 100%; height: 100%; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+
+.massive-title { font-size: clamp(6rem, 15vw, 15rem); line-height: 0.85; margin-bottom: 1rem; letter-spacing: -0.05em; position: relative; z-index: 10; color: #fff; }
+.massive-title .char-inner { background: none; -webkit-text-fill-color: initial; filter: none; animation: none; }
+.brand-slide[data-theme="#1a1a1a"] .massive-title { font-size: clamp(4rem, 10vw, 10rem); }
+.brand-desc { font-size: 1.2rem; line-height: 1.5; color: rgba(255,255,255,0.8); z-index: 10; position: relative; }
+
+/* Reusable Components */
+.stats {
+    display: flex; gap: 3rem;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 1.5rem 2.5rem; z-index: 10; position: relative;
+}
+.stat { display: flex; flex-direction: column; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); }
+.stat span { font-family: var(--font-serif); font-size: 2.5rem; color: #fff; margin-bottom: 0.5rem; }
+
+.parallax-img { width: 100%; height: 120%; background-size: cover; background-position: center; transform: translateY(-10%); }
+
+/* Center */
+.center-content { flex-direction: column; text-align: center; }
+.center-content .brand-desc { max-width: 600px; margin-top: 1rem; }
+
+/* Collage (Sapphire) */
+.layout-collage { position: relative; width: 100%; height: 100%; }
+.layout-collage .collage-text { position: absolute; top: 25%; left: 10%; max-width: 400px; }
+.layout-collage .collage-frame {
+    position: absolute; overflow: hidden; border-radius: 16px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 0.5rem;
+}
+.layout-collage .frame-1 { top: 15%; right: 25%; width: 300px; height: 400px; z-index: 5; }
+.layout-collage .frame-2 { top: 40%; right: 10%; width: 250px; height: 350px; z-index: 4; }
+.layout-collage .collage-stats { position: absolute; bottom: 15%; left: 10%; }
+
+/* Editorial (Khaadi) */
+.layout-editorial { position: relative; width: 100%; height: 100%; }
+.layout-editorial .editorial-frame { position: absolute; top: 15%; left: 5%; width: 40vw; height: 70vh; overflow: hidden; border-radius: 24px; box-shadow: 0 40px 80px rgba(0,0,0,0.4); z-index: 3; }
+.layout-editorial .editorial-title { position: absolute; top: 40%; left: 25%; z-index: 10; font-size: clamp(8rem, 20vw, 20rem); color: #fff; text-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+.layout-editorial .editorial-text {
+    position: absolute; top: 25%; right: 10%; width: 350px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 2rem; border-radius: 24px; z-index: 4;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.layout-editorial .editorial-stats { position: absolute; bottom: 15%; right: 15%; z-index: 5; }
+
+/* Scattered (Safinaz) */
+.layout-scattered { position: relative; width: 100%; height: 100%; }
+.layout-scattered .scattered-title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; font-size: clamp(6rem, 15vw, 15rem); color: #fff; }
+.layout-scattered .scatter-frame {
+    position: absolute; overflow: hidden; border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    z-index: 4; padding: 0.5rem;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.layout-scattered .scatter-1 { top: 15%; left: 15%; width: 200px; height: 280px; transform: rotate(-3deg); }
+.layout-scattered .scatter-2 { bottom: 15%; left: 30%; width: 250px; height: 300px; z-index: 11; transform: rotate(2deg); }
+.layout-scattered .scatter-3 { top: 25%; right: 15%; width: 220px; height: 320px; transform: rotate(-1deg); }
+.layout-scattered .scatter-text { position: absolute; bottom: 20%; right: 10%; width: 300px; z-index: 12; }
+
+/* ------------------------------------------------------------------
+   Emotive Chat Panel (Full-Height Immersive Takeover)
+------------------------------------------------------------------ */
+.chat-panel-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    visibility: hidden; pointer-events: none;
+    display: flex; justify-content: flex-end; /* Slide in from right */
+}
+.chat-panel-overlay.active { visibility: visible; pointer-events: auto; }
+
+.chat-panel-bg {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+    opacity: 0; transition: opacity 0.8s var(--ease-out);
+}
+.chat-panel-overlay.active .chat-panel-bg { opacity: 1; }
+
+.panel-close {
+    position: absolute; top: 2.5rem; right: 42vw; /* Positioned left of the panel */
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: none; z-index: 2001; color: #fff;
+    opacity: 0; transform: translateX(20px); transition: all 0.6s var(--ease-out);
+}
+.chat-panel-overlay.active .panel-close { opacity: 1; transform: translateX(0); }
+@media (max-width: 1024px) {
+    .panel-close { right: 2rem; top: 2rem; z-index: 2005; }
+    .chat-panel-content { width: 100vw !important; }
+}
+
+.chat-panel-content {
+    width: 40vw; min-width: 450px; height: 100vh;
+    background: linear-gradient(180deg, rgba(15,15,20,0.8) 0%, rgba(5,5,10,0.95) 100%);
+    border-left: 1px solid rgba(255,255,255,0.1);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    position: relative; z-index: 2000;
+    display: flex; flex-direction: column;
+    padding: 4rem;
+    transform: translateX(100%); transition: transform 0.8s var(--ease-expo);
+}
+.chat-panel-overlay.active .chat-panel-content { transform: translateX(0); }
+
+/* The Soul Orb (Emotive AI Core) */
+.soul-orb-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 300px;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+}
+.soul-orb {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #a29bfe, #6c5ce7);
+    filter: blur(20px);
+    animation: orbBreathe 4s ease-in-out infinite alternate;
+    opacity: 0.6;
+}
+.soul-orb-glow {
+    position: absolute; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(108,92,231,0.2) 0%, transparent 70%);
+    filter: blur(30px);
+    animation: orbPulse 8s ease-in-out infinite alternate;
+}
+@keyframes orbBreathe {
+    0% { transform: scale(0.9) translate(0, 10px); }
+    100% { transform: scale(1.1) translate(0, -10px); }
+}
+@keyframes orbPulse {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 0.8; transform: scale(1.2); }
+}
+
+/* Chat Header */
+.chat-header-emotive {
+    position: relative; z-index: 10; text-align: center; margin-bottom: 4rem;
+}
+.chat-header-emotive h2 { font-size: 2.5rem; font-weight: 400; color: #fff; margin-bottom: 0.5rem; }
+.chat-header-emotive p { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.5); }
+
+/* Chat Messages */
+.chat-messages-emotive {
+    position: relative; z-index: 10;
+    flex: 1; display: flex; flex-direction: column; gap: 3rem;
+    overflow-y: auto; padding-right: 1rem;
+}
+/* Custom Scrollbar for chat */
+.chat-messages-emotive::-webkit-scrollbar { width: 4px; }
+.chat-messages-emotive::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.c-msg { max-width: 85%; }
+.c-user {
+    align-self: flex-end; text-align: right;
+}
+.c-user p {
+    font-family: var(--font-serif); font-size: 1.8rem; font-style: italic; color: #fff;
+    line-height: 1.3;
+}
+.c-ai {
+    align-self: flex-start;
+}
+.ai-text {
+    font-size: 1.1rem; line-height: 1.6; color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem; font-weight: 300;
+}
+
+/* Emotive Blur Reveal for AI */
+.chat-panel-overlay.active .c-ai {
+    animation: cinematicReveal 1.2s var(--ease-out) forwards;
+    animation-delay: 0.4s; opacity: 0; filter: blur(20px); transform: translateY(20px);
+}
+@keyframes cinematicReveal {
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* Fashion Card in Chat */
+.fashion-card {
+    display: flex; gap: 1.5rem; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 1.2rem;
+    backdrop-filter: blur(20px); transition: transform 0.4s ease, background 0.4s ease;
+}
+.fashion-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); }
+.fc-img { width: 100px; height: 130px; background-size: cover; background-position: center; border-radius: 16px; }
+.fc-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.fc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.fc-top h4 { font-size: 1.3rem; font-weight: 500; color: #fff; }
+.fc-info p { font-size: 0.95rem; color: rgba(255,255,255,0.6); margin-bottom: 1rem; }
+.fc-info .price { font-size: 1.1rem; font-weight: 600; color: #fff; }
+
+/* Input Area */
+.chat-input-emotive {
+    position: relative; z-index: 10; margin-top: 2rem;
+}
+.input-pill {
+    position: relative; border-radius: 100px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(30px); display: flex; align-items: center; padding: 0.5rem;
+}
+.input-glow {
+    position: absolute; inset: 0; border-radius: 100px;
+    box-shadow: 0 0 20px rgba(108,92,231,0.2); opacity: 0; transition: opacity 0.4s ease;
+}
+.input-pill:hover .input-glow { opacity: 1; }
+.input-pill input {
+    flex: 1; background: transparent; border: none; padding: 1rem 1.5rem;
+    color: #fff; font-size: 1.1rem; outline: none; font-family: var(--font-sans);
+}
+.input-pill input::placeholder { color: rgba(255,255,255,0.3); }
+.input-pill button {
+    width: 45px; height: 45px; border-radius: 50%;
+    background: #fff; color: #000; border: none; font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center; cursor: none;
+}
+
+/* ------------------------------------------------------------------
+   Modules Overlay (Globe Icon Click)
+------------------------------------------------------------------ */
+.modules-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    visibility: hidden; pointer-events: none;
+    overflow: hidden; /* Canvas will be panned via JS */
+    background: #000000;
+    clip-path: circle(0% at 50% 50%);
+}
+.modules-overlay.active { visibility: visible; pointer-events: auto; }
+
+.modules-close {
+    position: fixed; top: 2.5rem; right: 3.5rem;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: var(--ios-blur); -webkit-backdrop-filter: var(--ios-blur);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: none; z-index: 1001; color: #fff;
+    opacity: 0; transform: translateY(-10px); transition: all 0.5s var(--ease-out);
+}
+.modules-overlay.active .modules-close { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+
+.modules-hint {
+    position: fixed; bottom: 3rem; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.6); font-family: var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.85rem;
+    pointer-events: none; opacity: 0; transition: opacity 0.6s ease 0.5s;
+    z-index: 1001;
+}
+.modules-overlay.active .modules-hint { opacity: 1; }
+
+/* The massive static universe */
+.modules-canvas {
+    position: absolute;
+    width: 400vw; height: 400vh;
+    left: 0; top: 0; /* Origin top-left */
+    will-change: transform;
+}
+
+/* ----------------------------------------------------- */
+/* MODULE CLUSTERS & CARDS                               */
+/* ----------------------------------------------------- */
+
+/* Specific fixed positions in the 400vw x 400vh universe */
+.cluster-pos-1 { top: 100vh; left: 100vw; }
+.cluster-pos-2 { top: 250vh; left: 250vw; }
+.cluster-pos-3 { top: 100vh; left: 300vw; }
+.cluster-pos-4 { top: 300vh; left: 150vw; }
+
+/* Mid-Distance Starfield Images */
+.bg-stars {
+    position: absolute;
+    width: 100%; height: 100%;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+.modules-overlay.active .bg-stars .side-image {
+    opacity: 0.35; /* Dimmer for mid-distance depth */
+}
+
+/* The Cluster Container */
+.module-cluster {
+    position: absolute;
+    width: 0; height: 0;
+}
+.module-cluster.active-cluster .side-image { opacity: 1; }
+.module-cluster.active-cluster .module-card { opacity: 1; }
+
+/* Scattered Fixed Cards in the massive universe */
+.module-card {
+    position: absolute;
+    width: 550px;
+    left: -275px; top: -150px; /* Centered perfectly inside cluster */
+    opacity: 0.1; /* Dim when not focused */
+    transition: opacity 1s ease;
+    z-index: 20;
+}
+
+/* Side Images Container */
+.side-image {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 5;
+}
+.side-image:hover { z-index: 30; transform: scale(1.05) !important; transition: transform 0.3s, opacity 1s; }
+
+/* Polaroid Aesthetic */
+.side-image.polaroid {
+    width: 220px;
+    background: #fdfdfd;
+    padding: 12px 12px 55px 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(0,0,0,0.1);
+    transform-origin: center;
+}
+.side-image.polaroid .si-img {
+    width: 100%; aspect-ratio: 1 / 1.15;
+    background-size: cover; background-position: center;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+.side-image.polaroid .si-text {
+    position: absolute; bottom: 15px; left: 0; width: 100%;
+    text-align: center;
+    font-family: 'Caveat', cursive; font-size: 1.8rem; color: #222;
+    line-height: 1; transform: rotate(-1.5deg);
+    opacity: 0.8;
+}
+
+/* Landscape Cinematic Aesthetic */
+.side-image.landscape {
+    width: 340px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.1);
+    border-radius: 2px; overflow: hidden;
+}
+.side-image.landscape .si-img {
+    width: 100%; aspect-ratio: 16 / 9;
+    background-size: cover; background-position: center;
+}
+
+.mc-inner {
+    position: relative; border-radius: 20px; overflow: hidden;
+    aspect-ratio: 4 / 3;
+    transform-style: preserve-3d;
+    transform: rotateX(0) rotateY(0);
+    transition: transform 0.15s linear, box-shadow 0.6s ease;
+    will-change: transform;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.mc-inner:hover {
+    box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 50px rgba(255,255,255,0.05);
+}
+
+/* Animated blob backgrounds */
+.mc-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.anim-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.8; animation: blobFloat 8s ease-in-out infinite alternate; }
+
+.mc-bg-1 { background: #0a0a1a; }
+.mc-bg-1 .blob-1 { width: 300px; height: 300px; background: #6a3de8; top: -20%; left: -10%; }
+.mc-bg-1 .blob-2 { width: 250px; height: 250px; background: #00b4d8; bottom: -15%; right: -5%; animation-delay: -3s; }
+.mc-bg-1 .blob-3 { width: 200px; height: 200px; background: #e040fb; top: 50%; left: 50%; animation-delay: -5s; }
+
+.mc-bg-2 { background: #1a0a0a; }
+.mc-bg-2 .blob-1 { width: 320px; height: 320px; background: #ff6b6b; top: -25%; right: -10%; animation-delay: -1s; }
+.mc-bg-2 .blob-2 { width: 250px; height: 250px; background: #ffd93d; bottom: -20%; left: -8%; animation-delay: -4s; }
+.mc-bg-2 .blob-3 { width: 180px; height: 180px; background: #ff8fab; top: 40%; left: 30%; animation-delay: -2s; }
+
+.mc-bg-3 { background: #0a1a12; }
+.mc-bg-3 .blob-1 { width: 280px; height: 280px; background: #00b894; top: -15%; left: -5%; animation-delay: -2s; }
+.mc-bg-3 .blob-2 { width: 260px; height: 260px; background: #0984e3; bottom: -20%; right: -10%; animation-delay: -5s; }
+.mc-bg-3 .blob-3 { width: 220px; height: 220px; background: #55efc4; top: 60%; left: 40%; animation-delay: -1s; }
+
+.mc-bg-4 { background: #140a1a; }
+.mc-bg-4 .blob-1 { width: 300px; height: 300px; background: #fd79a8; top: -20%; right: -5%; animation-delay: -3s; }
+.mc-bg-4 .blob-2 { width: 280px; height: 280px; background: #a29bfe; bottom: -15%; left: -10%; animation-delay: -1s; }
+.mc-bg-4 .blob-3 { width: 200px; height: 200px; background: #fdcb6e; top: 30%; left: 50%; animation-delay: -4s; }
+
+@keyframes blobFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.1); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+    100% { transform: translate(15px, -30px) scale(1.05); }
+}
+
+.mc-content {
+    position: relative; z-index: 2; padding: 3rem; height: 100%;
+    display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 100%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); /* inner glass line */
+}
+
+/* Editorial Top Section */
+.mc-top {
+    display: flex; align-items: center; gap: 1rem;
+    opacity: 0.6;
+}
+.mc-num {
+    font-family: var(--font-sans); font-size: 0.85rem; font-weight: 500;
+    letter-spacing: 0.2em; color: #fff;
+}
+.mc-line {
+    height: 1px; flex: 1; background: rgba(255,255,255,0.2);
+    transform-origin: left; transform: scaleX(0); transition: transform 0.6s var(--ease-out);
+}
+.mc-inner:hover .mc-line { transform: scaleX(1); }
+
+/* Drama Title */
+.drama-title {
+    font-family: var(--font-sans); font-size: 3.5rem; font-weight: 400; 
+    color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.04em;
+    line-height: 1;
+}
+.drama-title .serif-italic {
+    font-family: var(--font-serif); font-style: italic; font-weight: 300;
+    color: rgba(255,255,255,0.8); margin-left: -5px;
+}
+
+/* Drama Text Wrapper (Hidden initially for animation) */
+.drama-text-wrap {
+    overflow: hidden; /* For masking effects */
+    margin-top: 1rem;
+}
+.drama-desc { 
+    font-size: 1.1rem; line-height: 1.6; color: rgba(255,255,255,0.7); 
+    max-width: 90%; margin-bottom: 1.5rem; font-weight: 300;
+}
+.mc-tags { display: flex; gap: 0.6rem; }
+.drama-tag {
+    padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.75rem;
+    color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.1em;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ==========================================================================
+   DRAMATIC HOVER EFFECTS (Unique per card)
+   ========================================================================== */
+
+/* 1. Mask Up (AI Stylist) */
+.module-card[data-drama="mask-up"] .drama-text-wrap > * {
+    transform: translateY(100%); opacity: 0;
+    transition: transform 0.8s var(--ease-expo), opacity 0.4s ease;
+    transition-delay: 0.1s;
+}
+.module-card.active-card[data-drama="mask-up"] .drama-text-wrap > * {
+    transform: translateY(0); opacity: 1;
+}
+.module-card.active-card[data-drama="mask-up"] .drama-desc { transition-delay: 0.2s; }
+.module-card.active-card[data-drama="mask-up"] .mc-tags { transition-delay: 0.3s; }
+
+/* 2. Blur In (Visual Try-On) */
+.module-card[data-drama="blur-in"] .drama-text-wrap {
+    filter: blur(15px); opacity: 0; transform: scale(1.05);
+    transition: filter 1s var(--ease-out), opacity 0.8s ease, transform 1s var(--ease-out);
+    transition-delay: 0.1s;
+}
+.module-card.active-card[data-drama="blur-in"] .drama-text-wrap {
+    filter: blur(0); opacity: 1; transform: scale(1);
+}
+
+/* 3. Split Slide (Price Watch) */
+.module-card[data-drama="split-slide"] .drama-desc {
+    transform: translateX(-20px); opacity: 0; transition: all 0.8s var(--ease-expo);
+    transition-delay: 0.1s;
+}
+.module-card[data-drama="split-slide"] .mc-tags {
+    transform: translateX(20px); opacity: 0; transition: all 0.8s var(--ease-expo);
+    transition-delay: 0.2s;
+}
+.module-card.active-card[data-drama="split-slide"] .drama-desc,
+.module-card.active-card[data-drama="split-slide"] .mc-tags {
+    transform: translateX(0); opacity: 1;
+}
+
+/* 4. Clip Reveal (Outfit Builder) */
+.module-card[data-drama="clip-reveal"] .drama-text-wrap {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+    transition: clip-path 1s var(--ease-expo);
+    transition-delay: 0.1s;
+}
+.module-card.active-card[data-drama="clip-reveal"] .drama-text-wrap {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.mc-shine {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255,255,255,0.12) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.4s ease;
+}
+.mc-inner:hover .mc-shine { opacity: 1; }
+
+.features-section {
+    position: relative; z-index: 20;
+    padding: 10rem 5vw 8rem;
+    background: #0e0e0e;
+    min-height: 100vh;
+}
+
+.features-header { text-align: center; margin-bottom: 5rem; }
+.features-title {
+    font-size: clamp(3rem, 6vw, 5rem); color: #fff;
+    margin-bottom: 2.5rem; font-style: italic;
+}
+.features-pills { display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; }
+.f-pill {
+    padding: 0.6rem 1.6rem; border-radius: 100px; font-size: 0.9rem;
+    font-weight: 400; color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: none; transition: all 0.4s ease;
+    font-family: var(--font-sans);
+}
+.f-pill sup { font-size: 0.6rem; margin-left: 2px; }
+.f-pill:hover, .f-pill.active {
+    background: #fff; color: #000;
+    border-color: #fff;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+    max-width: 1200px; margin: 0 auto;
+}
+
+/* Individual 3D Card */
+.feature-card {
+    perspective: 1200px;
+    cursor: none;
+    opacity: 0; transform: translateY(60px);
+}
+.feature-card.visible { opacity: 1; transform: translateY(0); transition: all 1s var(--ease-expo); }
+
+.card-inner {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    transform-style: preserve-3d;
+    transform: rotateX(0) rotateY(0);
+    transition: transform 0.1s linear, box-shadow 0.4s ease;
+    will-change: transform;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.card-inner:hover {
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 40px rgba(255,255,255,0.05);
+}
+
+/* Animated blob backgrounds per card */
+.card-bg {
+    position: absolute; inset: 0; z-index: 0;
+    overflow: hidden;
+}
+.anim-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.8;
+    animation: blobFloat 8s ease-in-out infinite alternate;
+}
+
+/* Card 1: AI Stylist — Deep Purple / Electric Blue */
+.card-bg-1 { background: #0a0a1a; }
+.card-bg-1 .blob-1 { width: 300px; height: 300px; background: #6a3de8; top: -20%; left: -10%; animation-delay: 0s; }
+.card-bg-1 .blob-2 { width: 250px; height: 250px; background: #00b4d8; bottom: -15%; right: -5%; animation-delay: -3s; }
+.card-bg-1 .blob-3 { width: 200px; height: 200px; background: #e040fb; top: 50%; left: 50%; animation-delay: -5s; }
+
+/* Card 2: Visual Try-On — Warm Coral / Gold */
+.card-bg-2 { background: #1a0a0a; }
+.card-bg-2 .blob-1 { width: 320px; height: 320px; background: #ff6b6b; top: -25%; right: -10%; animation-delay: -1s; }
+.card-bg-2 .blob-2 { width: 250px; height: 250px; background: #ffd93d; bottom: -20%; left: -8%; animation-delay: -4s; }
+.card-bg-2 .blob-3 { width: 180px; height: 180px; background: #ff8fab; top: 40%; left: 30%; animation-delay: -2s; }
+
+/* Card 3: Price Watch — Teal / Emerald */
+.card-bg-3 { background: #0a1a12; }
+.card-bg-3 .blob-1 { width: 280px; height: 280px; background: #00b894; top: -15%; left: -5%; animation-delay: -2s; }
+.card-bg-3 .blob-2 { width: 260px; height: 260px; background: #0984e3; bottom: -20%; right: -10%; animation-delay: -5s; }
+.card-bg-3 .blob-3 { width: 220px; height: 220px; background: #55efc4; top: 60%; left: 40%; animation-delay: -1s; }
+
+/* Card 4: Outfit Builder — Rose / Lavender */
+.card-bg-4 { background: #140a1a; }
+.card-bg-4 .blob-1 { width: 300px; height: 300px; background: #fd79a8; top: -20%; right: -5%; animation-delay: -3s; }
+.card-bg-4 .blob-2 { width: 280px; height: 280px; background: #a29bfe; bottom: -15%; left: -10%; animation-delay: -1s; }
+.card-bg-4 .blob-3 { width: 200px; height: 200px; background: #fdcb6e; top: 30%; left: 50%; animation-delay: -4s; }
+
+@keyframes blobFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.1); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+    100% { transform: translate(15px, -30px) scale(1.05); }
+}
+
+/* Card Content Overlay */
+.card-content {
+    position: relative; z-index: 2;
+    padding: 2.5rem; height: 100%;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);
+}
+.card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.card-title {
+    font-family: var(--font-sans); font-size: 2rem; font-weight: 600;
+    color: #fff; margin-bottom: 0.5rem;
+}
+.card-desc {
+    font-size: 1rem; line-height: 1.5; color: rgba(255,255,255,0.7);
+    max-width: 400px; margin-bottom: 1rem;
+}
+.card-tag {
+    display: inline-block; padding: 0.3rem 0.8rem; border-radius: 100px;
+    font-size: 0.75rem; color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-right: 0.5rem;
+}
+
+/* Shine / glare overlay that follows mouse */
+.card-shine {
+    position: absolute; inset: 0; z-index: 3;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255,255,255,0.15) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.4s ease;
+}
+}
+.card-inner:hover .card-shine { opacity: 1; }
+
+/* ==========================================================================
+   MEGA MENU OVERLAY (Unseen Studio Style)
+   ========================================================================== */
+
+.mega-menu {
+    position: fixed; top: 0; right: 0;
+    width: 45vw; height: 100vh;
+    background: #f4f3ec; /* Cream/Off-white */
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem;
+    color: #111;
+    overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+    .mega-menu { width: 100vw; padding: 3rem; }
+}
+
+body.mega-menu-open .mega-menu {
+    transform: translateX(0%);
+}
+body.mega-menu-open {
+    overflow: hidden;
+}
+
+/* Close Button */
+.mega-menu-close {
+    position: absolute; top: 2rem; right: 2rem;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: #111; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10;
+    transition: transform 0.3s ease;
+}
+.mega-menu-close:hover { transform: scale(1.1); }
+
+.mega-menu-content {
+    display: flex; flex-direction: column; justify-content: space-between; height: 100%;
+}
+
+.mega-nav {
+    display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; margin-bottom: auto;
+}
+
+.mega-link {
+    font-family: 'Instrument Serif', serif;
+    font-size: 8vw;
+    line-height: 1.1;
+    color: #111;
+    text-decoration: none;
+    position: relative;
+    display: flex; align-items: flex-start;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+@media (max-width: 1024px) {
+    .mega-link { font-size: 15vw; }
+}
+.mega-link:hover {
+    transform: translateX(20px);
+}
+
+.mega-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-right: 1rem;
+    margin-top: 1.5vw;
+    color: #666;
+}
+
+.mega-link.hollow {
+    color: transparent;
+    -webkit-text-stroke: 1px #ccc;
+    position: relative;
+}
+.mega-link.hollow::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 10%; width: 100%; height: 2px;
+    background: #ccc;
+}
+.globe-icon {
+    width: 0.8em; height: 0.8em;
+    margin-left: 1rem; margin-top: 0.1em;
+    stroke: #ccc;
+}
+
+.mega-footer {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    font-family: 'Inter', sans-serif; font-size: 0.8rem;
+    text-transform: uppercase; letter-spacing: 0.05em; color: #333;
+}
+
+.mega-contact p { margin: 0 0 0.5rem 0; text-transform: none; }
+.mega-socials { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+.mega-socials a { color: #333; text-decoration: none; transition: color 0.3s; }
+.mega-socials a:hover { color: #8e2de2; }
+
+/* ==========================================================================
+   COSMIC WARP PORTAL TRANSITION (Clean Palette)
+   ========================================================================== */
+
+.cosmic-transition {
+    position: fixed; inset: 0; z-index: 99999;
+    pointer-events: none; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: #030306;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.cosmic-transition.active {
+    pointer-events: all;
+    opacity: 1;
+    visibility: visible;
+}
+
+.warp-tunnel {
+    position: absolute; width: 160vw; height: 160vh;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.25) 0%, rgba(112, 0, 255, 0.4) 40%, rgba(3, 3, 6, 0.95) 85%);
+    transform: scale(0.1);
+    filter: blur(20px);
+}
+
+.warp-ring {
+    position: absolute; width: 350px; height: 350px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 242, 254, 0.6);
+    box-shadow: 0 0 50px rgba(0, 242, 254, 0.5), inset 0 0 50px rgba(112, 0, 255, 0.4);
+    transform: scale(0);
+}
+
+.warp-ring.ring-2 {
+    border-color: rgba(160, 75, 255, 0.6);
+    box-shadow: 0 0 70px rgba(160, 75, 255, 0.5);
+}
+
+.warp-core {
+    position: absolute; width: 220vw; height: 220vh;
+    background: radial-gradient(circle, rgba(0,210,255,0.9) 0%, rgba(112,0,255,0.7) 35%, rgba(3,3,6,1) 75%);
+    border-radius: 50%;
+    transform: scale(0);
+}
+
+/* ==========================================================================
+   LUSION-INSPIRED EXPERIENCE SECTION (Pinned Layered Stages & Scrubbed Master TL)
+   ========================================================================== */
+
+.lusion-experience {
+    position: relative; width: 100%; height: 100vh;
+    background: #040407; color: #fff;
+    overflow: hidden;
+}
+
+/* Base Stage Layout */
+.lusion-hero-stage,
+.lusion-marquee-stage,
+.lusion-brands-stage,
+.lusion-blue-stage,
+.lusion-light-footer {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    overflow: hidden; box-sizing: border-box;
+}
+
+/* --- Stage 1: Hero Canvas & Crosshairs --- */
+.lusion-hero-stage {
+    z-index: 10;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 6rem 4rem; background: #040407;
+    will-change: transform, opacity;
+}
+
+#lusion-hero-canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+}
+
+.lusion-crosshair-grid span {
+    position: absolute; font-family: monospace; font-size: 1.2rem;
+    color: rgba(255,255,255,0.35); pointer-events: none; z-index: 2;
+}
+.ch-tl { top: 10vh; left: 5vw; }
+.ch-tr { top: 10vh; right: 5vw; }
+.ch-cl { top: 50vh; left: 5vw; }
+.ch-cc { top: 50vh; left: 50vw; transform: translate(-50%, -50%); }
+.ch-cr { top: 50vh; right: 5vw; }
+.ch-bl { bottom: 10vh; left: 5vw; }
+.ch-br { bottom: 10vh; right: 5vw; }
+
+.lusion-hero-content {
+    position: relative; z-index: 3;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-top: auto; margin-bottom: 2rem; width: 100%;
+}
+
+.lusion-tag {
+    font-size: 0.8rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.6);
+    display: block; margin-bottom: 0.5rem;
+}
+
+.lusion-main-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(4rem, 10vw, 10rem);
+    font-weight: 800; line-height: 0.9;
+    letter-spacing: -0.04em; color: #ffffff;
+}
+
+.lusion-sub-text {
+    font-size: 0.9rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.7);
+    margin-top: 1rem;
+}
+
+.lusion-serif-italic {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: clamp(2.5rem, 5vw, 5rem); color: rgba(255,255,255,0.9);
+    line-height: 1; text-align: right;
+}
+
+.lusion-sec-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2rem, 4vw, 4rem); font-weight: 700;
+    letter-spacing: -0.02em; color: #ffffff; text-align: right;
+}
+
+.lusion-scroll-indicator {
+    position: relative; z-index: 3;
+    display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem;
+    font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.6);
+}
+.scroll-arrow-down {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* --- Stage 2: Marquee Stage --- */
+.lusion-marquee-stage {
+    z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    background: #040407;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transform: translateY(100%); opacity: 0;
+    will-change: transform, opacity;
+}
+.lusion-marquee-track {
+    display: flex; gap: 2.5rem; white-space: nowrap;
+    will-change: transform;
+}
+.lusion-marquee-item {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 4rem); font-weight: 700;
+    letter-spacing: -0.02em; color: rgba(255,255,255,0.95);
+}
+
+/* --- Stage 3: Brands Grid Stage --- */
+.lusion-brands-stage {
+    z-index: 30;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 4rem; background: #06060a; text-align: center;
+    transform: translateY(100%); opacity: 0;
+    will-change: transform, opacity;
+}
+.lusion-brands-header {
+    font-size: 0.85rem; letter-spacing: 0.25em; color: rgba(255,255,255,0.5);
+    margin-bottom: 4rem; text-transform: uppercase;
+}
+.lusion-brands-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 3rem; width: 100%; max-width: 1200px; margin: 0 auto;
+}
+.brand-item {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em;
+    color: rgba(255,255,255,0.75); transition: all 0.4s ease;
+    cursor: pointer;
+}
+.brand-item:hover {
+    color: #ffffff; transform: translateY(-6px);
+    text-shadow: 0 0 25px rgba(255,255,255,0.8);
+}
+
+/* --- Stage 4: Electric Blue Phase & 3D Tarot Cards Deck --- */
+.lusion-blue-stage {
+    z-index: 40;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: #142bff; color: #ffffff;
+    padding: 4rem 2rem;
+    transform: translateY(100%);
+    will-change: transform;
+}
+
+.lusion-outline-bg-text {
+    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(6rem, 14vw, 14vw); font-weight: 900;
+    color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,0.25);
+    white-space: nowrap; pointer-events: none; z-index: 0;
+    letter-spacing: -0.04em;
+}
+
+.lusion-expertise-header {
+    position: relative; z-index: 2; text-align: center; margin-bottom: 3rem;
+}
+.lusion-sub-label {
+    font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.85);
+    display: block; margin-bottom: 1rem; max-width: 700px; margin-left: auto; margin-right: auto;
+}
+.lusion-expertise-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem); font-weight: 800;
+    letter-spacing: -0.03em; color: #ffffff;
+}
+
+/* 3D Cards Container & Flip Mechanics */
+.lusion-cards-container {
+    position: relative; z-index: 5;
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; height: 440px; margin-bottom: 2rem;
+    perspective: 1400px;
+}
+
+.lusion-card {
+    width: 270px; height: 400px;
+    position: absolute; perspective: 1000px;
+    cursor: pointer; will-change: transform, opacity;
+}
+
+.card-inner-wrap {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.lusion-card.flipped .card-inner-wrap {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+}
+
+/* Card Back (Vector Playing Card Line Art) */
+.card-back {
+    background: #142bff; border: 2.5px solid #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem;
+}
+.card-border-frame {
+    position: absolute; inset: 12px;
+    border: 1px solid rgba(255,255,255,0.4); border-radius: 14px;
+    pointer-events: none;
+}
+.card-back-pattern {
+    text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+.card-symbol { font-size: 2.2rem; color: #ffffff; }
+.card-logo-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 800; letter-spacing: 0.3em; color: #ffffff;
+}
+
+/* Card Front (White Minimalist Service Info) */
+.card-front {
+    background: #ffffff; color: #0a0a14;
+    transform: rotateY(180deg);
+    padding: 2rem 1.8rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.card-front-top {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.8rem;
+}
+.card-front-top h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; color: #0a0a14;
+}
+.card-icon-symbol { font-size: 0.75rem; font-weight: 600; color: #142bff; }
+
+.card-bullets {
+    list-style: none; margin: 1rem 0; display: flex; flex-direction: column; gap: 0.6rem;
+}
+.card-bullets li {
+    font-size: 0.85rem; font-weight: 500; color: #333345;
+    position: relative; padding-left: 1.2rem;
+}
+.card-bullets li::before {
+    content: "•"; position: absolute; left: 0; color: #142bff; font-size: 1.2rem; line-height: 1;
+}
+
+.card-front-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(0,0,0,0.1); padding-top: 0.8rem;
+}
+.brand-tag { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 1.1rem; color: #0a0a14; }
+.card-num { font-size: 0.95rem; font-weight: 700; color: #142bff; }
+
+/* Interactive Particle Field CTA */
+.lusion-particle-cta-wrap {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; overflow: hidden; z-index: 6;
+    opacity: 0; pointer-events: none;
+    will-change: opacity;
+}
+
+#lusion-particle-field-canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+}
+
+.lusion-cta-inner {
+    position: relative; z-index: 3; pointer-events: auto;
+}
+.cta-question {
+    font-size: 0.85rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.9);
+    display: block; margin-bottom: 1rem;
+}
+.cta-big-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 8rem); font-weight: 800;
+    letter-spacing: -0.04em; color: #ffffff; margin-bottom: 2rem;
+}
+.cta-scroll-btn {
+    background: #ffffff; color: #142bff; border: none;
+    padding: 1.1rem 2.8rem; border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+    letter-spacing: 0.1em; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+.cta-scroll-btn:hover {
+    transform: scale(1.05); background: #f0f3ff;
+}
+
+/* --- Stage 5: Off-White Footer Transition --- */
+.lusion-light-footer {
+    z-index: 50;
+    background: #f4f3ec; color: #111118;
+    padding: 6rem 4rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 4rem; border-radius: 36px 36px 0 0;
+    transform: translateY(100%);
+    will-change: transform;
+}
+.lusion-footer-col h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;
+    text-transform: lowercase;
+}
+.lusion-footer-col p { font-size: 0.95rem; color: #555565; line-height: 1.7; }
+.lusion-footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.lusion-footer-col a {
+    color: #111118; text-decoration: none; font-size: 1rem; font-weight: 500;
+    transition: color 0.3s ease;
+}
+.lusion-footer-col a:hover { color: #142bff; }
+
+.newsletter-col h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2rem, 3.5vw, 3.5rem); font-weight: 800;
+    line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 2rem;
+}
+.newsletter-input-group {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid #111118; padding-bottom: 0.8rem;
+}
+.newsletter-input-group input {
+    border: none; background: transparent; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem; color: #111118; width: 100%; outline: none;
+}
+.newsletter-input-group button {
+    background: #111118; color: #ffffff; border: none;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease;
+}
+.newsletter-input-group button:hover {
+    background: #142bff; transform: scale(1.1);
+}
+
+/* ==========================================================================
+   ADVANCED MODULAR TEXT ANIMATION SYSTEM (Lusion.co Engine)
+   ========================================================================== */
+
+[data-text-anim="flip-3d"] {
+    perspective: 1000px;
+    display: inline-block;
+}
+
+.word-wrap {
+    display: inline-block;
+    overflow: hidden; /* Acts as a mask for sliding/skewing text */
+    vertical-align: top;
+    margin-right: 0.25em;
+}
+
+.word-inner, .char-inner {
+    display: inline-block;
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden;
+}
+
+/* ==========================================================================
+   ANTI-GRAVITY CARDS (Practical Visual Assets)
+   ========================================================================== */
+.ag-card {
+    position: absolute;
+    width: 550px;
+    height: 687.5px; /* 4:5 aspect ratio */
+    left: -275px; top: -343.75px; /* Centered */
+    border-radius: 20px;
+    overflow: hidden;
+    opacity: 0.1; /* Dim when not focused */
+    transition: opacity 1s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease;
+    z-index: 20;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.module-cluster.active-cluster .ag-card { opacity: 1; }
+
+.ag-card:hover {
+    box-shadow: 0 50px 100px rgba(0,0,0,0.9), 0 0 50px rgba(255,255,255,0.05);
+}
+
+.ag-image-inner {
+    position: absolute; inset: -5%;
+    width: 110%;
+    height: 110%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.85) contrast(1.15) saturate(0.95);
+    transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s ease;
+    z-index: 0;
+}
+
+.ag-card:hover .ag-image-inner {
+    filter: brightness(1) contrast(1.05) saturate(1);
+    transform: scale(1.04);
+}
+
+.ag-card-glass-overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+}
+
+.ag-content {
+    position: absolute; bottom: 0; left: 0; width: 100%; z-index: 2;
+    padding: 3rem;
+    color: #fff;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+    transition-delay: 0.1s;
+}
+
+.module-cluster.active-cluster .ag-card .ag-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.ag-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem; letter-spacing: 0.25em; color: rgba(255,255,255,0.6);
+    display: block; margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.ag-content h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.5rem; font-weight: 700;
+    letter-spacing: -0.02em; margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.ag-content p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+}
+
+</style>
+</head>
+<body>
+    <!-- Custom Minimalist Cursor -->
+    <div class="cursor"></div>
+
+    <!-- Top Navigation -->
+    <nav class="nav">
+        <div class="logo">unravelld<span class="dot">.</span></div>
+        <div class="nav-right">
+            <a href="#" class="nav-link magnetic">Explore</a>
+            <a href="stylist.html" class="nav-link magnetic">Chatbot</a>
+            <a href="#" class="nav-link magnetic">Virtual Try-On</a>
+            <a href="#" class="nav-link magnetic">Visual Search</a>
+            <a href="#" class="nav-link magnetic">Price Watch</a>
+            <div class="nav-circle magnetic">
+                <div class="dots">
+                    <span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Smooth Scroll Wrapper -->
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+
+            <!-- Main Hero Content -->
+            <section class="hero-section">
+                <!-- Background: Raw Video + Ripple Canvas Overlay -->
+                <div class="scene-container">
+                    <video id="bg-video" class="video-bg" autoplay loop muted playsinline crossorigin="anonymous" style="opacity: 0; pointer-events: none; position: absolute; z-index: -999;" src="bg-video.mp4"></video>
+                    <canvas id="ripple-canvas"></canvas>
+                    <div class="scene-overlay"></div>
+                </div>
+
+                <div class="hero-content">
+                    <div class="subtitle split-lines">A FASHION AGGREGATOR & AI STYLIST</div>
+                    <h1 class="title">
+                        <span class="serif-part split-chars">Discover the</span><br>
+                        <span class="sans-part split-chars">unravelld</span>
+                    </h1>
+                    <button class="pill-btn magnetic" onclick="openModal()">
+                        Consult AI Stylist <span class="arrow">↘</span>
+                    </button>
+                </div>
+
+                <!-- Corner Widgets -->
+                <div class="widget-bottom-left magnetic">
+                    <div class="icon-bars">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="widget-text">Our 2026 Vision</span>
+                </div>
+                <div class="widget-bottom-center magnetic" onclick="openModules()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </div>
+                <div class="widget-bottom-right">
+                    &copy;2026
+                </div>
+            </section>
+
+            <!-- Lusion-Inspired Experience Section -->
+            <section class="lusion-experience" id="lusion-experience">
+                
+                <!-- Stage 1: Dark Particle Hero & Big Typography -->
+                <div class="lusion-hero-stage">
+                    <canvas id="lusion-hero-canvas"></canvas>
+                    
+                    <div class="lusion-crosshair-grid">
+                        <span class="ch ch-tl">+</span>
+                        <span class="ch ch-tr">+</span>
+                        <span class="ch ch-cl">+</span>
+                        <span class="ch ch-cc">+</span>
+                        <span class="ch ch-cr">+</span>
+                        <span class="ch ch-bl">+</span>
+                        <span class="ch ch-br">+</span>
+                    </div>
+
+                    <div class="lusion-hero-content">
+                        <div class="lusion-text-left">
+                            <span class="lusion-tag" data-text-anim="skew-slide">WE ARE</span>
+                            <h2 class="lusion-main-title" data-text-anim="flip-3d">UNRAVELLED</h2>
+                            <p class="lusion-sub-text" data-text-anim="blur-fade">A FASHION INTELLIGENCE STUDIO</p>
+                        </div>
+                        <div class="lusion-text-right">
+                            <p class="lusion-serif-italic" data-text-anim="blur-fade">CRAFTING UNIQUE</p>
+                            <h3 class="lusion-sec-title" data-text-anim="skew-slide">DIGITAL EXPERIENCES</h3>
+                        </div>
+                    </div>
+
+                    <div class="lusion-scroll-indicator">
+                        <span>SCROLL TO EXPLORE</span>
+                        <div class="scroll-arrow-down">↓</div>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Horizontal Marquee / Receding Camera Statement -->
+                <div class="lusion-marquee-stage">
+                    <div class="lusion-marquee-track">
+                        <span class="lusion-marquee-item">A WORLDWIDE PLATFORM TRACKING 58+ FASHION HOUSES & AI INTELLIGENCE</span>
+                        <span class="lusion-marquee-item">•</span>
+                        <span class="lusion-marquee-item">REAL-TIME PRICE TRANSPARENCY & NEURAL STYLING</span>
+                        <span class="lusion-marquee-item">•</span>
+                        <span class="lusion-marquee-item">CRAFTING UNEXPECTED DIGITAL FASHION EXPERIENCES</span>
+                        <span class="lusion-marquee-item">•</span>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Brands We Track & Work With -->
+                <div class="lusion-brands-stage">
+                    <h2 class="lusion-brands-header" data-text-anim="blur-fade">BRANDS WE WORK WITH & TRACK</h2>
+                    <div class="lusion-brands-grid">
+                        <div class="brand-item">SAPPHIRE</div>
+                        <div class="brand-item">KHAADI</div>
+                        <div class="brand-item">SANA SAFINAZ</div>
+                        <div class="brand-item">MARIA.B</div>
+                        <div class="brand-item">GUL AHMED</div>
+                        <div class="brand-item">ELAN</div>
+                        <div class="brand-item">BAROQUE</div>
+                        <div class="brand-item">NISHAT LINEN</div>
+                        <div class="brand-item">CHARIZMA</div>
+                        <div class="brand-item">ASIM JOFA</div>
+                        <div class="brand-item">ZARA</div>
+                        <div class="brand-item">MANGO</div>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Electric Blue Phase (Outline Text, Cards & Particle CTA) -->
+                <div class="lusion-blue-stage">
+                    <!-- Background Outline Typography -->
+                    <div class="lusion-outline-bg-text">FASHION INTELLIGENCE</div>
+
+                    <div class="lusion-expertise-header">
+                        <span class="lusion-sub-label" data-text-anim="blur-fade">MULTIDISCIPLINARY EXPERTISE ACROSS STRATEGY, CREATIVE, TECHNOLOGY AND PRODUCTION</span>
+                        <h2 class="lusion-expertise-title" data-text-anim="flip-3d">AREA OF EXPERTISE</h2>
+                    </div>
+
+                    <!-- 3D Playing Cards Deck -->
+                    <div class="lusion-cards-container">
+                        <!-- Card 1 -->
+                        <div class="lusion-card card-1" data-index="1">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>STRATEGY</h3>
+                                        <span class="card-icon-symbol">Strategy ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>Digital Experience Strategy</li>
+                                        <li>Price Watch Intelligence</li>
+                                        <li>Markup Analytics</li>
+                                        <li>Trend Forecasting</li>
+                                        <li>Research & Discovery</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">01</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="lusion-card card-2" data-index="2">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>CREATIVE</h3>
+                                        <span class="card-icon-symbol">Creative ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>Art Direction</li>
+                                        <li>Virtual Try-On UI/UX</li>
+                                        <li>Motion Design</li>
+                                        <li>Interactive Design</li>
+                                        <li>Editorial Curation</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">02</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="lusion-card card-3" data-index="3">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>TECH</h3>
+                                        <span class="card-icon-symbol">Tech ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>WebGL / Three.js Engines</li>
+                                        <li>Front End Development</li>
+                                        <li>Neural Style Matching</li>
+                                        <li>Interactive Installations</li>
+                                        <li>AR & VR Experiences</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">03</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="lusion-card card-4" data-index="4">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>PRODUCTION</h3>
+                                        <span class="card-icon-symbol">Production ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>58+ Brand Sync Engine</li>
+                                        <li>Procedural Modeling</li>
+                                        <li>3D Optimization</li>
+                                        <li>Animation Pipelines</li>
+                                        <li>Real-time Sales Alerts</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">04</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Particle Field CTA -->
+                    <div class="lusion-particle-cta-wrap">
+                        <canvas id="lusion-particle-field-canvas"></canvas>
+                        <div class="lusion-cta-inner">
+                            <span class="cta-question" data-text-anim="skew-slide">IS YOUR FASHION ENGINE READY TO GO WILD?</span>
+                            <h2 class="cta-big-heading" data-text-anim="flip-3d">Let's work together!</h2>
+                            <button class="cta-scroll-btn magnetic">
+                                <span>↓ CONTINUE TO SCROLL ↓</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 5: Off-White Footer Transition (Contact & Newsletter) -->
+                <div class="lusion-light-footer">
+                    <div class="lusion-footer-col">
+                        <h4>unravelld studio</h4>
+                        <p>Suite 100<br>Fashion Avenue<br>Karachi / Lahore<br>Pakistan</p>
+                    </div>
+                    <div class="lusion-footer-col">
+                        <h4>Socials</h4>
+                        <ul>
+                            <li><a href="#">Twitter / X</a></li>
+                            <li><a href="#">Instagram</a></li>
+                            <li><a href="#">LinkedIn</a></li>
+                        </ul>
+                    </div>
+                    <div class="lusion-footer-col newsletter-col">
+                        <h3 data-text-anim="flip-3d">Subscribe to<br>our newsletter</h3>
+                        <div class="newsletter-input-group">
+                            <input type="email" placeholder="Enter your email...">
+                            <button class="magnetic">→</button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Explore Brands Section -->
+            <section class="brands-section" id="explore-brands">
+                <div class="horizontal-container">
+                    
+                    <!-- Slide 1: Intro -->
+                    <div class="brand-slide" data-theme="#1a1a1a">
+                        <div class="brand-content center-content">
+                            <h2 class="massive-title serif-part split-chars">The Houses.</h2>
+                            <p class="brand-desc split-lines">Swipe to explore 58 partner collections, tracked in real-time for absolute price transparency.</p>
+                            <div class="scroll-indicator">Scroll →</div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Sapphire (Collage Frame) -->
+                    <div class="brand-slide" data-theme="#0a1b2a">
+                        <div class="brand-content layout-collage">
+                            <div class="collage-text stagger-up">
+                                <h2 class="massive-title sans-part split-chars">Sapphire</h2>
+                                <p class="brand-desc split-lines">Our Price Watch module recently detected a 64% markup just 5 days prior to their summer sale.</p>
+                            </div>
+                            <div class="collage-frame frame-1 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="collage-frame frame-2 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="stats collage-stats stagger-up">
+                                <div class="stat"><span>986</span> Pieces Tracked</div>
+                                <div class="stat"><span>42%</span> Avg. Markup</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Khaadi (Editorial Overlap) -->
+                    <div class="brand-slide" data-theme="#2a3622">
+                        <div class="brand-content layout-editorial">
+                            <div class="editorial-frame stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1550614000-4b95d466f2fb?q=80&w=1200&auto=format&fit=crop');"></div>
+                            </div>
+                            <h2 class="massive-title serif-part split-chars editorial-title" style="font-style: italic;">Khaadi</h2>
+                            <div class="editorial-text stagger-up">
+                                <p class="brand-desc">Users frequently match luxury lawn designs to Khaadi's Pret collections via our Visual Engine.</p>
+                            </div>
+                            <div class="stats editorial-stats stagger-up">
+                                <div class="stat"><span>1,240</span> Tracked</div>
+                                <div class="stat"><span>Rs 4.5k</span> True Value</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Sana Safinaz (Scattered Frames) -->
+                    <div class="brand-slide" data-theme="#381116">
+                        <div class="brand-content layout-scattered">
+                            <h2 class="massive-title sans-part split-chars scattered-title">Safinaz</h2>
+                            <div class="scatter-frame scatter-1 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-frame scatter-2 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1605001011157-798889988b77?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-frame scatter-3 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1574015974293-817f0ebebb74?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-text stagger-up">
+                                <div class="stats" style="margin-top:0;">
+                                    <div class="stat"><span>742</span> Pieces Tracked</div>
+                                    <div class="stat"><span>Luxury</span> Category</div>
+                                </div>
+                                <p class="brand-desc split-lines" style="margin-top: 2rem;">Our Graph-Based Outfit Builder seamlessly coordinates Muzlin collections.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Modules Overlay (Triggered by Globe Icon) -->
+    <div class="modules-overlay" id="modules-overlay">
+        <!-- 3D Wireframe Globe Canvas (Fixed in background) -->
+        <canvas id="globe-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.95; mix-blend-mode: screen; filter: drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 0 3px rgba(255,255,255,0.6));"></canvas>
+        
+        <div class="modules-close magnetic" onclick="closeModules()">✕</div>
+        
+        <div class="modules-hint">Swipe up / scroll to explore</div>
+        
+        <!-- The massive draggable canvas -->
+        <div class="modules-canvas" id="modules-canvas">
+            
+            <!-- Mid-Distance Background Pictures (Scattered like stars) -->
+            <div class="bg-stars">
+                <div class="side-image polaroid" style="top: 50vh; left: 50vw; transform: scale(0.5) rotate(-15deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 30vh; left: 180vw; transform: scale(0.6) rotate(10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 80vh; left: 350vw; transform: scale(0.4) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 150vh; left: 40vw; transform: scale(0.7) rotate(25deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 120vh; left: 200vw; transform: scale(0.5) rotate(-20deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 180vh; left: 360vw; transform: scale(0.6) rotate(12deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 250vh; left: 80vw; transform: scale(0.45) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 280vh; left: 200vw; transform: scale(0.55) rotate(-18deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 220vh; left: 320vw; transform: scale(0.65) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350vh; left: 40vw; transform: scale(0.5) rotate(-10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 380vh; left: 220vw; transform: scale(0.6) rotate(15deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 340vh; left: 350vw; transform: scale(0.4) rotate(-25deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 50vh; left: 260vw; transform: scale(0.5) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350vh; left: 120vw; transform: scale(0.55) rotate(-12deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 1 -->
+            <div class="module-cluster cluster-pos-1">
+                <!-- 6 Images forming a ring around the card -->
+                <div class="side-image polaroid" style="top: -320px; left: -480px; transform: scale(0.9) rotate(-12deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -380px; left: 20px; transform: scale(0.8) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -250px; left: 450px; transform: scale(1) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 300px; left: -450px; transform: scale(0.85) rotate(-6deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350px; left: -20px; transform: scale(1.1) rotate(-2deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 250px; left: 450px; transform: scale(0.9) rotate(10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                
+                <!-- Card 1: AI Stylist -->
+                <div class="module-card" style="--delay: 0.1s;" data-drama="mask-up">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-1">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">01</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">AI <em class="serif-italic">Stylist</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Conversational fashion intelligence trained on 58 Pakistani brands. Seamlessly converse in Urdu or English.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Chatbot</span><span class="drama-tag">NLP</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 2 -->
+            <div class="module-cluster cluster-pos-2">
+                <div class="side-image polaroid" style="top: -300px; left: -450px; transform: scale(0.8) rotate(-8deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -360px; left: 50px; transform: scale(0.9) rotate(3deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -220px; left: 420px; transform: scale(0.95) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 320px; left: -420px; transform: scale(1) rotate(6deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 380px; left: 10px; transform: scale(0.85) rotate(-3deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 280px; left: 480px; transform: scale(1.05) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <!-- Card 2: Virtual Draping (Anti-Gravity) -->
+                <div class="ag-card magnetic" data-speed="1.1">
+                    <div class="ag-image-inner" style="background-image: url('assets/antigravity-burgundy-velvet.jpg');"></div>
+                    <div class="ag-card-glass-overlay"></div>
+                    <div class="ag-content">
+                        <span class="ag-tag">MODULE 02</span>
+                        <h3>Virtual Draping</h3>
+                        <p>Real-time physical cloth simulation engine.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 3 -->
+            <div class="module-cluster cluster-pos-3">
+                <div class="side-image landscape" style="top: -350px; left: -400px; transform: scale(0.95) rotate(-4deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -390px; left: 80px; transform: scale(0.85) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -260px; left: 460px; transform: scale(1.1) rotate(-6deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 280px; left: -460px; transform: scale(0.8) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 360px; left: -40px; transform: scale(0.9) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 240px; left: 400px; transform: scale(1) rotate(4deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <!-- Card 3: Price Watch -->
+                <div class="module-card" style="--delay: 0.3s;" data-drama="split-slide">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-3">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">03</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">Price <em class="serif-italic">Watch</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Real-time market tracking. We detect fake markups before synthetic sales go live.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Analytics</span><span class="drama-tag">Truth</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 4 -->
+            <div class="module-cluster cluster-pos-4">
+                <div class="side-image polaroid" style="top: -280px; left: -480px; transform: scale(0.9) rotate(-9deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -340px; left: -20px; transform: scale(1.1) rotate(2deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -220px; left: 440px; transform: scale(0.8) rotate(-7deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 330px; left: -430px; transform: scale(0.95) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 370px; left: 60px; transform: scale(0.85) rotate(-4deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 270px; left: 460px; transform: scale(1) rotate(6deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <!-- Card 4: Outfit Builder -->
+                <div class="module-card" style="--delay: 0.4s;" data-drama="clip-reveal">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-4">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">04</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">Outfit <em class="serif-italic">Builder</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Graph-based engine coordinating fragmented pieces into a single cohesive runway look.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Graph AI</span><span class="drama-tag">Curation</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Emotive AI Stylist Chat Panel -->
+    <div class="chat-panel-overlay" id="stylist-panel">
+        <div class="chat-panel-bg"></div>
+        <div class="panel-close magnetic" onclick="closeChatPanel()">✕</div>
+        
+        <div class="chat-panel-content">
+            <!-- The Soul Orb -->
+            <div class="soul-orb-container">
+                <div class="soul-orb"></div>
+                <div class="soul-orb-glow"></div>
+            </div>
+
+            <div class="chat-header-emotive">
+                <h2>unravelld <em class="serif-italic">intelligence</em></h2>
+                <p>Listening...</p>
+            </div>
+            
+            <div class="chat-messages-emotive">
+                <div class="c-msg c-user">
+                    <p>Eid k liye pastel lawn chahiye, under Rs. 6,000.</p>
+                </div>
+                <div class="c-msg c-ai">
+                    <p class="ai-text">I have verified genuine sales across our database. Here is a stunning match for your criteria.</p>
+                    <div class="fashion-card">
+                        <div class="fc-img" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop');"></div>
+                        <div class="fc-info">
+                            <div class="fc-top">
+                                <h4>Sapphire</h4>
+                                <span class="badge">Verified Sale</span>
+                            </div>
+                            <p>Embroidered 3-Piece Lawn</p>
+                            <span class="price">Rs 4,990 <span class="old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.9em; margin-left: 8px;">Rs 6,990</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-emotive">
+                <div class="input-pill">
+                    <div class="input-glow"></div>
+                    <input type="text" placeholder="Talk to unravelld..." disabled>
+                    <button class="magnetic">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mega Menu Overlay (Unseen Studio Style) -->
+    <div class="mega-menu" id="mega-menu">
+        <div class="mega-menu-close magnetic" onclick="closeMegaMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        
+        <div class="mega-menu-content">
+            <nav class="mega-nav">
+                <a href="index.html" class="mega-link"><span class="mega-num">01</span>Index</a>
+                <a href="stylist.html" class="mega-link"><span class="mega-num">02</span>Chatbot</a>
+                <a href="#" class="mega-link"><span class="mega-num">03</span>Projects</a>
+                <a href="#" class="mega-link hollow"><span class="mega-num">04</span>World <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+            </nav>
+
+            <div class="mega-footer">
+                <div class="mega-contact">
+                    <p>hello@unravelld.co</p>
+                    <p>(+92) 300 123 4567</p>
+                </div>
+                <div class="mega-socials">
+                    <a href="#">TWITTER</a>
+                    <a href="#">INSTAGRAM</a>
+                    <a href="#">LINKEDIN</a>
+                    <a href="#">BEHANCE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cosmic Light-Speed Portal Transition -->
+    <div class="cosmic-transition" id="cosmic-transition">
+        <div class="warp-tunnel"></div>
+        <div class="warp-ring ring-1"></div>
+        <div class="warp-ring ring-2"></div>
+        <div class="warp-core"></div>
+    </div>
+
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script>
+// -----------------------------------------------------
+// Utility: Split Text for Animation
+// -----------------------------------------------------
+function splitText() {
+    document.querySelectorAll('.split-chars').forEach(el => {
+        const text = el.innerText;
+        el.innerHTML = '';
+        text.split('').forEach(char => {
+            if (char === ' ') {
+                el.innerHTML += `<span class="char-mask" style="width: 0.3em;">&nbsp;</span>`;
+            } else {
+                el.innerHTML += `<span class="char-mask"><span class="char-inner">${char}</span></span>`;
+            }
+        });
+    });
+    document.querySelectorAll('.split-lines').forEach(el => {
+        const text = el.innerText;
+        el.innerHTML = `<span class="line-mask"><span class="line-inner">${text}</span></span>`;
+    });
+}
+splitText();
+
+// -----------------------------------------------------
+// Smooth Scrolling (Lenis + GSAP ScrollTrigger Synchronization)
+// -----------------------------------------------------
+const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true
+});
+
+lenis.on('scroll', ScrollTrigger.update);
+
+gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+});
+
+gsap.ticker.lagSmoothing(0);
+
+// -----------------------------------------------------
+// Custom Cursor
+// -----------------------------------------------------
+const cursor = document.querySelector('.cursor');
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+let cursorX = mouseX, cursorY = mouseY;
+
+document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+gsap.ticker.add(() => {
+    cursorX += (mouseX - cursorX) * 0.2;
+    cursorY += (mouseY - cursorY) * 0.2;
+    cursor.style.left = `${cursorX}px`;
+    cursor.style.top = `${cursorY}px`;
+});
+
+document.querySelectorAll('a, button, .magnetic, .nav-circle, .pill-btn, .modal-close').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => {
+        cursor.classList.remove('hover');
+        if (el.classList.contains('magnetic')) gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)' });
+    });
+    if (el.classList.contains('magnetic')) {
+        el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const relX = e.clientX - rect.left - rect.width / 2;
+            const relY = e.clientY - rect.top - rect.height / 2;
+            gsap.to(el, { x: (relX / rect.width) * 15, y: (relY / rect.height) * 15, duration: 0.3, ease: 'power2.out' });
+        });
+    }
+});
+
+// -----------------------------------------------------
+// Realistic WebGL Water Ripple (unseen.co liquid effect)
+// -----------------------------------------------------
+const videoElement = document.getElementById('bg-video');
+
+// Video Playlist & Slowdown Logic
+const videoPlaylist = ['bg-video.mp4', 'animate_it_k_and_make_the_far.mp4'];
+let currentVideoIndex = 0;
+
+// Slow down the video to give a cinematic effect
+videoElement.playbackRate = 0.6;
+
+// When the current video ends, play the next one
+videoElement.addEventListener('ended', () => {
+    currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
+    videoElement.src = videoPlaylist[currentVideoIndex];
+    videoElement.play();
+    videoElement.playbackRate = 0.6; // Re-apply slowdown on new source
+});
+
+// Remove the HTML 'loop' attribute so the 'ended' event fires
+videoElement.removeAttribute('loop');
+const sceneContainer = document.querySelector('.scene-container');
+
+// Set up Three.js scene
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Add canvas to scene container, ensure it sits at the back
+renderer.domElement.style.position = 'absolute';
+renderer.domElement.style.top = '0';
+renderer.domElement.style.left = '0';
+renderer.domElement.style.width = '100%';
+renderer.domElement.style.height = '100%';
+renderer.domElement.style.zIndex = '-998';
+renderer.domElement.style.pointerEvents = 'none';
+sceneContainer.appendChild(renderer.domElement);
+
+// Remove old 2D canvas if present
+const oldCanvas = document.getElementById('ripple-canvas');
+if (oldCanvas) oldCanvas.remove();
+
+const videoTexture = new THREE.VideoTexture(videoElement);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+
+const MAX_RIPPLES = 15;
+const ripplesArray = [];
+for (let i = 0; i < MAX_RIPPLES; i++) {
+    ripplesArray.push(new THREE.Vector3(-1, -1, -9999)); // x, y, time
+}
+
+let currentRipple = 0;
+const clock = new THREE.Clock();
+
+const shaderMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        u_tex: { value: videoTexture },
+        u_time: { value: 0 },
+        u_aspect: { value: window.innerWidth / window.innerHeight },
+        u_ripples: { value: ripplesArray }
+    },
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D u_tex;
+        uniform float u_time;
+        uniform float u_aspect;
+        uniform vec3 u_ripples[${MAX_RIPPLES}];
+        varying vec2 vUv;
+
+        void main() {
+            vec2 uv = vUv;
+            vec2 offset = vec2(0.0);
+            
+            for(int i = 0; i < ${MAX_RIPPLES}; i++) {
+                vec3 rip = u_ripples[i];
+                float age = u_time - rip.z;
+                
+                if(age > 0.0 && age < 4.0) {
+                    vec2 dir = uv - rip.xy;
+                    dir.x *= u_aspect;
+                    float dist = length(dir);
+                    
+                    float radius = age * 0.15; // Expansion speed
+                    float diff = dist - radius;
+                    
+                    // Gaussian envelope for the ripple crest
+                    float envelope = exp(-diff * diff * 200.0);
+                    // Fade out over time
+                    float decay = max(0.0, 1.0 - age / 4.0);
+                    
+                    // Sine wave for the ripple shape
+                    float wave = sin(diff * 40.0 - age * 5.0);
+                    
+                    offset += normalize(dir) * wave * envelope * decay * 0.02;
+                }
+            }
+            
+            vec2 finalUv = uv + offset;
+            
+            // Chromatic aberration based on displacement intensity
+            float ca = length(offset) * 0.8;
+            float r = texture2D(u_tex, finalUv + vec2(ca, 0.0)).r;
+            float g = texture2D(u_tex, finalUv).g;
+            float b = texture2D(u_tex, finalUv - vec2(ca, 0.0)).b;
+            
+            gl_FragColor = vec4(r, g, b, 1.0);
+        }
+    `
+});
+
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterial);
+scene.add(plane);
+
+function addRipple(x, y) {
+    ripplesArray[currentRipple].set(
+        x / window.innerWidth,
+        1.0 - (y / window.innerHeight), // Invert Y for WebGL UVs
+        clock.getElapsedTime()
+    );
+    currentRipple = (currentRipple + 1) % MAX_RIPPLES;
+}
+
+document.addEventListener('mousemove', (e) => {
+    // Only drop ripples occasionally to save performance and look natural
+    if (Math.random() > 0.6) {
+        addRipple(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener('click', (e) => {
+    // Big burst on click
+    for (let i = 0; i < 4; i++) {
+        setTimeout(() => addRipple(e.clientX, e.clientY), i * 150);
+    }
+});
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    shaderMaterial.uniforms.u_aspect.value = window.innerWidth / window.innerHeight;
+});
+
+function animateWebGL() {
+    requestAnimationFrame(animateWebGL);
+    shaderMaterial.uniforms.u_time.value = clock.getElapsedTime();
+    renderer.render(scene, camera);
+}
+animateWebGL();
+
+// -----------------------------------------------------
+// GSAP Initial Reveal
+// -----------------------------------------------------
+gsap.registerPlugin(ScrollTrigger);
+
+const tl = gsap.timeline();
+tl.to(".hero-content .char-inner", { y: 0, rotation: 0, duration: 1.2, stagger: 0.02, ease: "power4.out", delay: 0.2 })
+  .to(".hero-content .line-inner", { y: 0, duration: 1, ease: "power3.out" }, "-=1")
+  .from(".pill-btn", { y: 20, opacity: 0, duration: 1, ease: "power2.out" }, "-=0.8")
+  .from(".nav, .widget-bottom-left, .widget-bottom-center, .widget-bottom-right", {
+      y: (i, t) => t.classList.contains('nav') ? -20 : 20, opacity: 0, duration: 1, stagger: 0.1, ease: "power2.out"
+  }, "-=1");
+
+// -----------------------------------------------------
+// Brands Section (Horizontal + Dynamic Themes)
+// -----------------------------------------------------
+const horizontalContainer = document.querySelector('.horizontal-container');
+const slides = gsap.utils.toArray('.brand-slide');
+
+const scrollTween = gsap.to(slides, {
+    xPercent: -100 * (slides.length - 1),
+    ease: "none",
+    scrollTrigger: {
+        trigger: ".brands-section",
+        pin: true,
+        scrub: 1,
+        end: () => "+=" + horizontalContainer.offsetWidth,
+    }
+});
+
+let currentTheme = null;
+
+slides.forEach((slide) => {
+    ScrollTrigger.create({
+        trigger: slide,
+        containerAnimation: scrollTween,
+        start: "left 60%",
+        end: "right 60%",
+        onEnter: () => activateSlide(slide),
+        onEnterBack: () => activateSlide(slide)
+    });
+});
+
+function activateSlide(slide) {
+    const themeColor = slide.dataset.theme;
+
+    gsap.to(slide.querySelectorAll('.char-inner'), { y: 0, rotation: 0, duration: 1.2, stagger: 0.02, ease: "power4.out", overwrite: "auto" });
+    gsap.to(slide.querySelectorAll('.line-inner'), { y: 0, duration: 1, ease: "power3.out", delay: 0.2, overwrite: "auto" });
+    gsap.to(slide.querySelectorAll('.stagger-up'), { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out", delay: 0.3, overwrite: "auto" });
+
+    if (currentTheme !== themeColor) {
+        currentTheme = themeColor;
+
+        // Fade out the hero video so brand solid color becomes visible
+        gsap.to(".scene-container", { opacity: 0, duration: 1, ease: "power2.inOut" });
+
+        gsap.to("body", { backgroundColor: themeColor, duration: 1, ease: "power2.inOut" });
+        gsap.to(".nav, .logo", { color: "#ffffff", duration: 1 });
+        cursor.classList.add('light-mode');
+    }
+}
+
+slides.forEach(slide => {
+    ScrollTrigger.create({
+        trigger: slide,
+        containerAnimation: scrollTween,
+        start: "right 0%",
+        end: "left 100%",
+        onLeave: () => resetSlide(slide),
+        onLeaveBack: () => resetSlide(slide)
+    });
+});
+
+function resetSlide(slide) {
+    gsap.set(slide.querySelectorAll('.char-inner'), { y: '110%', rotation: 5 });
+    gsap.set(slide.querySelectorAll('.line-inner'), { y: '110%' });
+    gsap.set(slide.querySelectorAll('.stagger-up'), { y: 30, opacity: 0 });
+}
+
+slides.forEach(slide => {
+    const imgs = slide.querySelectorAll('.parallax-img');
+    imgs.forEach(img => {
+        gsap.to(img, {
+            y: "15%", ease: "none",
+            scrollTrigger: { trigger: slide, containerAnimation: scrollTween, start: "left right", end: "right left", scrub: true }
+        });
+    });
+});
+
+ScrollTrigger.create({
+    trigger: ".hero-section",
+    start: "bottom center",
+    onEnterBack: () => {
+        currentTheme = null;
+
+        // Bring video back
+        gsap.to(".scene-container", { opacity: 1, duration: 1, ease: "power2.inOut" });
+
+        gsap.to("body", { backgroundColor: "#f7ece8", color: "#2b2626", duration: 1, ease: "power2.inOut" });
+        gsap.to(".nav, .logo", { color: "#fff", duration: 1 });
+        cursor.classList.remove('light-mode');
+    }
+});
+
+// Chat Panel (Emotive Stylist)
+function openChatPanel() {
+    document.getElementById('stylist-panel').classList.add('active');
+    lenis.stop(); // Stop scroll when panel is open
+}
+function closeChatPanel() {
+    document.getElementById('stylist-panel').classList.remove('active');
+    lenis.start();
+}
+
+// -----------------------------------------------------
+// Modules Overlay (Globe Icon Click & Spatial Camera)
+// -----------------------------------------------------
+const modulesCanvas = document.getElementById('modules-canvas');
+let currentCardIndex = 0;
+let canvasAnimFrame;
+let lastScrollTime = 0;
+
+let canvasTargetX = 0;
+let canvasTargetY = 0;
+let canvasCurrentX = 0;
+let canvasCurrentY = 0;
+
+// Warp animation proxy object
+const warpSettings = { scale: 1, blur: 0 };
+
+// Hardcoded specific positions from CSS (in vw and vh units)
+const cardCoordinates = [
+    { x: 1, y: 1 },    // Card 1: 100vw, 100vh
+    { x: 2.5, y: 2.5 },// Card 2: 250vw, 250vh
+    { x: 3, y: 1 },    // Card 3: 300vw, 100vh
+    { x: 1.5, y: 3 }   // Card 4: 150vw, 300vh
+];
+
+function updateActiveCard() {
+    // Hide all cards/images
+    document.querySelectorAll('.module-cluster').forEach(c => {
+        c.classList.remove('active-cluster');
+        const card = c.querySelector('.module-card, .ag-card');
+        if (card) card.classList.remove('active-card');
+    });
+
+    // Show current cluster's card and images
+    const normalizedIndex = ((currentCardIndex % 4) + 4) % 4;
+    const activeCluster = document.querySelector(`.cluster-pos-${normalizedIndex + 1}`);
+    activeCluster.classList.add('active-cluster');
+    const activeCard = activeCluster.querySelector('.module-card, .ag-card');
+    if (activeCard) activeCard.classList.add('active-card');
+    
+    // Move the user (camera) to center this specific cluster
+    const targetCard = cardCoordinates[normalizedIndex];
+    canvasTargetX = (window.innerWidth / 2) - (targetCard.x * window.innerWidth);
+    canvasTargetY = (window.innerHeight / 2) - (targetCard.y * window.innerHeight);
+}
+
+function openModules() {
+    const overlay = document.getElementById('modules-overlay');
+    const globe = document.getElementById('globe-canvas');
+    overlay.classList.add('active');
+    lenis.stop();
+    
+    // Instant jump to first card position
+    const targetCard = cardCoordinates[0];
+    canvasCurrentX = canvasTargetX = (window.innerWidth / 2) - (targetCard.x * window.innerWidth);
+    canvasCurrentY = canvasTargetY = (window.innerHeight / 2) - (targetCard.y * window.innerHeight);
+    
+    // Reset warp settings for animation
+    warpSettings.scale = 0.01;
+    warpSettings.blur = 30;
+    
+    updateActiveCard();
+    canvasAnimFrame = requestAnimationFrame(panCanvas);
+
+    // Dramatic Black Hole & Rocket Warp Animation
+    const tl = gsap.timeline();
+    
+    // 1. Black hole expands rapidly
+    tl.fromTo(overlay, 
+        { clipPath: "circle(0% at 50% 50%)" }, 
+        { clipPath: "circle(150% at 50% 50%)", duration: 1.2, ease: "power4.inOut" }
+    );
+
+    // 2. The spatial universe rockets forward into view
+    tl.to(warpSettings, {
+        scale: 1, blur: 0, duration: 1.8, ease: "expo.out" 
+    }, "-=0.6");
+
+    // 3. Globe shoots in with a massive spin
+    tl.fromTo(globe,
+        { scale: 0, rotationZ: 180, opacity: 0 },
+        { scale: 1, rotationZ: 0, opacity: 0.95, duration: 2, ease: "expo.out" },
+        "-=1.8"
+    );
+}
+
+function closeModules() {
+    const overlay = document.getElementById('modules-overlay');
+    const globe = document.getElementById('globe-canvas');
+    
+    // Reverse warp animation
+    const tl = gsap.timeline({
+        onComplete: () => {
+            overlay.classList.remove('active');
+            lenis.start();
+            cancelAnimationFrame(canvasAnimFrame);
+        }
+    });
+    
+    tl.to(warpSettings, { scale: 0.01, blur: 30, duration: 0.8, ease: "power3.in" })
+      .to(globe, { scale: 0, opacity: 0, rotationZ: -90, duration: 0.8, ease: "power3.in" }, 0)
+      .to(overlay, { clipPath: "circle(0% at 50% 50%)", duration: 0.8, ease: "power3.in" }, 0.2);
+}
+
+// Camera pan loop
+function panCanvas() {
+    // Lerp for cinematic smooth panning between fixed points
+    canvasCurrentX += (canvasTargetX - canvasCurrentX) * 0.05;
+    canvasCurrentY += (canvasTargetY - canvasCurrentY) * 0.05;
+    
+    modulesCanvas.style.transform = `translate3d(${canvasCurrentX}px, ${canvasCurrentY}px, 0) scale(${warpSettings.scale})`;
+    modulesCanvas.style.filter = `blur(${warpSettings.blur}px)`;
+    
+    canvasAnimFrame = requestAnimationFrame(panCanvas);
+}
+
+// Swipe/Scroll to move user to the next/prev card
+document.getElementById('modules-overlay').addEventListener('wheel', (e) => {
+    const now = Date.now();
+    if (now - lastScrollTime < 1000) return; // Wait for pan to complete
+
+    if (e.deltaY > 30 || e.deltaX > 30) {
+        currentCardIndex++;
+        lastScrollTime = now;
+        updateActiveCard();
+    } else if (e.deltaY < -30 || e.deltaX < -30) {
+        currentCardIndex--;
+        lastScrollTime = now;
+        updateActiveCard();
+    }
+}, { passive: true });
+
+// Optional: Drag to trigger next/prev
+let isDraggingCanvas = false;
+let startDragX = 0;
+modulesCanvas.addEventListener('mousedown', (e) => {
+    isDraggingCanvas = true;
+    startDragX = e.clientX;
+});
+window.addEventListener('mouseup', (e) => {
+    if (!isDraggingCanvas) return;
+    isDraggingCanvas = false;
+    const dx = e.clientX - startDragX;
+    if (Math.abs(dx) > 100) {
+        if (dx < 0) currentCardIndex++;
+        else currentCardIndex--;
+        updateActiveCard();
+    }
+});
+
+// 3D Tilt and Continuous Floating for Module Cards
+document.querySelectorAll('.module-card').forEach((el, i) => {
+    const animTarget = el.querySelector('.mc-float-wrapper');
+    
+    // Continuous float animation (all directions movement)
+    gsap.to(animTarget, {
+        y: "random(-40, 40)",
+        x: "random(-40, 40)",
+        rotationZ: "random(-3, 3)",
+        duration: "random(4, 8)",
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: i * 0.2
+    });
+
+    // 3D Mouse Tilt (Only for main cards, not side images)
+    if (el.classList.contains('module-card')) {
+        const inner = el.querySelector('.mc-inner');
+        const shine = el.querySelector('.mc-shine');
+        
+        inner.addEventListener('mousemove', (e) => {
+            const rect = inner.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateY = ((x - centerX) / centerX) * 15;
+        const rotateX = ((centerY - y) / centerY) * 15;
+
+        inner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+
+        const shineX = (x / rect.width) * 100;
+        const shineY = (y / rect.height) * 100;
+        shine.style.setProperty('--shine-x', `${shineX}%`);
+        shine.style.setProperty('--shine-y', `${shineY}%`);
+    });
+
+        inner.addEventListener('mouseleave', () => {
+            inner.style.transform = 'rotateX(0) rotateY(0) scale(1)';
+            inner.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease';
+        });
+
+        inner.addEventListener('mouseenter', () => {
+            inner.style.transition = 'transform 0.1s linear, box-shadow 0.4s ease';
+        });
+    }
+});
+
+// -----------------------------------------------------
+// 3D Wireframe Globe (Modules Overlay Background)
+// -----------------------------------------------------
+const globeCanvas = document.getElementById('globe-canvas');
+
+// Setup Three.js for Globe
+const globeScene = new THREE.Scene();
+const globeCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+globeCamera.position.z = 5;
+
+const globeRenderer = new THREE.WebGLRenderer({ canvas: globeCanvas, alpha: true, antialias: true });
+globeRenderer.setSize(window.innerWidth, window.innerHeight);
+globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Create Wireframe Sphere (24 width segments, 24 height segments for a dense grid like the image)
+const globeGeometry = new THREE.SphereGeometry(2, 24, 24);
+
+// Remove the diagonal lines to make it look like a latitude/longitude grid
+const edgesGeometry = new THREE.EdgesGeometry(globeGeometry);
+const globeMaterial = new THREE.LineBasicMaterial({ 
+    color: 0xffffff, 
+    transparent: true, 
+    opacity: 0.25,
+    linewidth: 1
+});
+const globeMesh = new THREE.LineSegments(edgesGeometry, globeMaterial);
+
+// Tilt the globe slightly
+globeMesh.rotation.z = 0.2;
+globeMesh.rotation.x = 0.2;
+globeScene.add(globeMesh);
+
+// Add slight subtle mouse tracking to the globe rotation
+let targetGlobeRotX = 0.2;
+let targetGlobeRotY = 0;
+let baseGlobeRotY = 0; // Added for constant spinning
+
+document.addEventListener('mousemove', (e) => {
+    if (document.getElementById('modules-overlay').classList.contains('active')) {
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+        targetGlobeRotY = x * 0.5;
+        targetGlobeRotX = 0.2 + y * 0.5;
+    }
+});
+
+function animateGlobe() {
+    requestAnimationFrame(animateGlobe);
+    
+    // Base constant rotation (fast enough to not look static)
+    baseGlobeRotY += 0.004; 
+    
+    // Lerp to the combined target (mouse parallax + continuous base rotation)
+    globeMesh.rotation.x += (targetGlobeRotX - globeMesh.rotation.x) * 0.05;
+    
+    const finalRotY = baseGlobeRotY + targetGlobeRotY;
+    globeMesh.rotation.y += (finalRotY - globeMesh.rotation.y) * 0.05;
+    
+    globeRenderer.render(globeScene, globeCamera);
+}
+animateGlobe();
+
+window.addEventListener('resize', () => {
+    globeCamera.aspect = window.innerWidth / window.innerHeight;
+    globeCamera.updateProjectionMatrix();
+    globeRenderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Mega Menu Logic
+const navCircle = document.querySelector('.nav-circle');
+if (navCircle) {
+    navCircle.addEventListener('click', () => {
+        document.body.classList.add('mega-menu-open');
+    });
+}
+
+window.closeMegaMenu = function() {
+    document.body.classList.remove('mega-menu-open');
+};
+
+// Cosmic Light-Speed Portal Transition Logic
+const chatbotLinks = document.querySelectorAll('a[href="stylist.html"]');
+const cosmicTransition = document.getElementById('cosmic-transition');
+const warpTunnel = document.querySelector('.warp-tunnel');
+const warpRings = document.querySelectorAll('.warp-ring');
+const warpCore = document.querySelector('.warp-core');
+
+if (chatbotLinks.length > 0 && cosmicTransition) {
+    chatbotLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            
+            cosmicTransition.classList.add('active');
+            
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    window.location.href = href;
+                }
+            });
+            
+            // 1. Zoom the page inward with high-speed motion blur simulation
+            tl.to(document.body, {
+                scale: 1.15,
+                opacity: 0.2,
+                filter: "blur(12px)",
+                duration: 1.2,
+                ease: "power3.in"
+            }, 0);
+            
+            // 2. Cosmic Tunnel expands rapidly
+            tl.to(warpTunnel, {
+                scale: 2.5,
+                filter: "blur(0px)",
+                duration: 1.2,
+                ease: "expo.inOut"
+            }, 0);
+            
+            // 3. Shockwave rings pulse outwards
+            tl.to(warpRings, {
+                scale: 4,
+                opacity: 0,
+                duration: 1.1,
+                stagger: 0.15,
+                ease: "power2.out"
+            }, 0.1);
+            
+            // 4. Warp Core expands to engulf the screen in dark midnight blue/cyan
+            tl.to(warpCore, {
+                scale: 2,
+                duration: 1.2,
+                ease: "power4.inOut"
+            }, 0.2);
+        });
+    });
+}
+
+
+// ==========================================================================
+// LUSION EXPERIENCE MASTER PINNED SCRUBBED TIMELINE (Lusion.co 1-to-1 Engineering)
+// ==========================================================================
+
+const lusionSec = document.getElementById('lusion-experience');
+if (lusionSec) {
+    // 1. Setup Master Pinned GSAP ScrollTrigger Scrubbed Timeline
+    const masterTL = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#lusion-experience",
+            start: "top top",
+            end: "+=5000",
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1
+        }
+    });
+
+    // --- Sequence 1: Hero Text & Particle Recede ---
+    masterTL.to(".lusion-hero-content, .lusion-crosshair-grid, .lusion-scroll-indicator", {
+        scale: 0.75, opacity: 0, y: -80, duration: 1
+    }, 0)
+    .to("#lusion-hero-canvas", { scale: 0.5, opacity: 0.1, duration: 1 }, 0);
+
+    // --- Sequence 2: Marquee Stage Slide In, Track & Slide Out ---
+    masterTL.fromTo(".lusion-marquee-stage", { y: "100%", opacity: 0 }, { y: "0%", opacity: 1, duration: 1 }, 0.8)
+    .to(".lusion-marquee-track", { xPercent: -40, duration: 2.5 }, 1.5)
+    .to(".lusion-marquee-stage", { y: "-100%", opacity: 0, duration: 1 }, 3.8);
+
+    // --- Sequence 3: Brands Grid Slide In, Stagger Reveal & Slide Out ---
+    masterTL.fromTo(".lusion-brands-stage", { y: "100%", opacity: 0 }, { y: "0%", opacity: 1, duration: 1 }, 4.5)
+    .fromTo(".brand-item", { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 1.5 }, 5)
+    .to(".lusion-brands-stage", { y: "-100%", opacity: 0, duration: 1 }, 7);
+
+    // --- Sequence 4: Electric Blue Phase Slide In ---
+    masterTL.fromTo(".lusion-blue-stage", { y: "100%" }, { y: "0%", duration: 1.5 }, 7.8)
+    .fromTo(".lusion-expertise-header", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1 }, 8.8);
+
+    // --- Sequence 5: CARDS STACK -> OPENING / FANNING OUT -> 3D FLIP ---
+    // Cards start stacked centered:
+    masterTL.set(".lusion-card", { x: 0, rotate: 0, scale: 0.85, opacity: 1 }, 8);
+
+    // Open/Fan Out Cards Horizontally:
+    masterTL.to(".lusion-card.card-1", { x: -410, rotate: -12, scale: 1, duration: 2 }, 9.5)
+    .to(".lusion-card.card-2", { x: -140, rotate: -4, scale: 1, duration: 2 }, 9.5)
+    .to(".lusion-card.card-3", { x: 140, rotate: 4, scale: 1, duration: 2 }, 9.5)
+    .to(".lusion-card.card-4", { x: 410, rotate: 12, scale: 1, duration: 2 }, 9.5);
+
+    // 3D Flip Cards to reveal white front faces as scroll continues:
+    masterTL.to(".lusion-card .card-inner-wrap", {
+        rotateY: 180, duration: 2, stagger: 0.25, ease: "power2.inOut"
+    }, 11.8);
+
+    // Cards Straighten out & Slide up:
+    masterTL.to(".lusion-card", { rotate: 0, duration: 1 }, 14)
+    .fromTo(".lusion-cards-container, .lusion-expertise-header, .lusion-outline-bg-text", 
+        { opacity: 1, y: 0 }, 
+        { opacity: 0, y: -100, duration: 1.5 }, 
+        15.2
+    );
+
+    // --- Sequence 6: Interactive Particle CTA Fade In ---
+    masterTL.fromTo(".lusion-particle-cta-wrap", { opacity: 0, pointerEvents: "none", y: 0 }, {
+        opacity: 1, pointerEvents: "auto", duration: 1.5
+    }, 16.5)
+    .to(".lusion-particle-cta-wrap", { opacity: 0, y: -80, duration: 1 }, 19);
+
+    // --- Sequence 7: Off-White Light Footer Rolls Up ---
+    masterTL.fromTo(".lusion-light-footer", { y: "100%" }, { y: "0%", duration: 2, ease: "power3.out" }, 19.8);
+}
+
+// 2. High-Performance WebGL Fluid Swarm Particle Engine (Hero Black Screen)
+const heroCanvas = document.getElementById('lusion-hero-canvas');
+if (heroCanvas && typeof THREE !== 'undefined') {
+    const container = heroCanvas.parentElement;
+    let width = container.offsetWidth;
+    let height = container.offsetHeight;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.z = 4.5;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    window.addEventListener('resize', () => {
+        if (!container) return;
+        width = container.offsetWidth;
+        height = container.offsetHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    });
+
+    const particleCount = 3500;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const initialPos = new Float32Array(particleCount * 3);
+    const scales = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+        // Spawn in fluid sphere/cloud shape
+        const u = Math.random();
+        const v = Math.random();
+        const theta = u * 2.0 * Math.PI;
+        const phi = Math.acos(2.0 * v - 1.0);
+        const r = Math.cbrt(Math.random()) * 2.2;
+
+        const x = r * Math.sin(phi) * Math.cos(theta);
+        const y = r * Math.sin(phi) * Math.sin(theta);
+        const z = r * Math.cos(phi);
+
+        positions[i * 3] = initialPos[i * 3] = x;
+        positions[i * 3 + 1] = initialPos[i * 3 + 1] = y;
+        positions[i * 3 + 2] = initialPos[i * 3 + 2] = z;
+
+        scales[i] = Math.random() * 0.8 + 0.2;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            uTime: { value: 0 },
+            uMouse: { value: new THREE.Vector2(-999, -999) }
+        },
+        vertexShader: `
+            uniform float uTime;
+            uniform vec2 uMouse;
+            attribute float aScale;
+            varying float vDepth;
+            
+            void main() {
+                vec3 pos = position;
+                
+                // Simplex / Curl Noise approximation for fluid swirl motion
+                float time = uTime * 0.5;
+                pos.x += sin(time + pos.y * 2.5) * 0.18;
+                pos.y += cos(time + pos.z * 2.5) * 0.18;
+                pos.z += sin(time + pos.x * 2.5) * 0.18;
+
+                // Mouse Repulsion in 3D
+                vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                
+                gl_PointSize = (18.0 * aScale) * (1.0 / -mvPos.z);
+                gl_Position = projectionMatrix * mvPos;
+                vDepth = -mvPos.z;
+            }
+        `,
+        fragmentShader: `
+            varying float vDepth;
+            
+            void main() {
+                // Soft Volumetric Glow Circle with Over-exposed Core (Lusion Style)
+                vec2 uv = gl_PointCoord - vec2(0.5);
+                float dist = length(uv);
+                if (dist > 0.5) discard;
+                
+                float core = smoothstep(0.5, 0.0, dist);
+                float glow = pow(core, 2.5);
+                
+                // Additive over-exposed white core with subtle cyan/silver edge
+                vec3 col = mix(vec3(0.85, 0.95, 1.0), vec3(1.0, 1.0, 1.0), glow);
+                gl_FragColor = vec4(col, glow * 0.85);
+            }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+
+    const particlesMesh = new THREE.Points(geometry, material);
+    scene.add(particlesMesh);
+
+    let mouse = new THREE.Vector2(-999, -999);
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / height) * 2 + 1;
+    });
+
+    const clock = new THREE.Clock();
+    function animateSwarm() {
+        requestAnimationFrame(animateSwarm);
+        const elapsedTime = clock.getElapsedTime();
+        material.uniforms.uTime.value = elapsedTime;
+
+        // Slow cinematic rotation of entire particle cloud
+        particlesMesh.rotation.y = elapsedTime * 0.08;
+        particlesMesh.rotation.x = Math.sin(elapsedTime * 0.05) * 0.1;
+
+        renderer.render(scene, camera);
+    }
+    animateSwarm();
+}
+
+// 3. Manual Click Toggle Flip for Cards
+const lusionCards = document.querySelectorAll('.lusion-card');
+if (lusionCards.length > 0) {
+    lusionCards.forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+    });
+}
+
+// 4. SDF Geometric Shapes Liquid Particle Wave Engine (Blue Screen Stage)
+const pFieldCanvas = document.getElementById('lusion-particle-field-canvas');
+if (pFieldCanvas) {
+    const pfCtx = pFieldCanvas.getContext('2d');
+    let pfWidth = pFieldCanvas.width = pFieldCanvas.parentElement.offsetWidth;
+    let pfHeight = pFieldCanvas.height = pFieldCanvas.parentElement.offsetHeight;
+
+    window.addEventListener('resize', () => {
+        if (!pFieldCanvas.parentElement) return;
+        pfWidth = pFieldCanvas.width = pFieldCanvas.parentElement.offsetWidth;
+        pfHeight = pFieldCanvas.height = pFieldCanvas.parentElement.offsetHeight;
+    });
+
+    const shapeTypes = ['cross', 'square', 'triangle', 'circle', 'diamond'];
+    const pFieldNodes = [];
+    const rows = 16;
+    const cols = 36;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const baseX = (pfWidth / (cols + 1)) * (c + 1);
+            // Liquid wave contour layout
+            const waveY = (pfHeight * 0.45) + (Math.sin(c * 0.25) * 40) + ((r / rows) * pfHeight * 0.55);
+            pFieldNodes.push({
+                baseX: baseX,
+                baseY: waveY,
+                x: baseX,
+                y: waveY,
+                vx: 0,
+                vy: 0,
+                shape: shapeTypes[(r * 3 + c * 7) % shapeTypes.length],
+                size: Math.random() * 6 + 8,
+                alpha: Math.random() * 0.75 + 0.25,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    let pfMouse = { x: -9999, y: -9999, active: false };
+
+    const ctaWrap = pFieldCanvas.parentElement;
+    ctaWrap.addEventListener('mousemove', (e) => {
+        const rect = ctaWrap.getBoundingClientRect();
+        pfMouse.x = e.clientX - rect.left;
+        pfMouse.y = e.clientY - rect.top;
+        pfMouse.active = true;
+    });
+
+    ctaWrap.addEventListener('mouseleave', () => {
+        pfMouse.active = false;
+    });
+
+    function drawSDFShape(ctx, shape, x, y, size) {
+        ctx.beginPath();
+        const h = size / 2;
+
+        if (shape === 'cross') {
+            ctx.moveTo(x - h, y); ctx.lineTo(x + h, y);
+            ctx.moveTo(x, y - h); ctx.lineTo(x, y + h);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            return;
+        } else if (shape === 'square') {
+            ctx.rect(x - h / 2, y - h / 2, h, h);
+        } else if (shape === 'triangle') {
+            ctx.moveTo(x, y - h);
+            ctx.lineTo(x + h, y + h);
+            ctx.lineTo(x - h, y + h);
+            ctx.closePath();
+        } else if (shape === 'circle') {
+            ctx.arc(x, y, h / 2.2, 0, Math.PI * 2);
+        } else if (shape === 'diamond') {
+            ctx.moveTo(x, y - h);
+            ctx.lineTo(x + h, y);
+            ctx.lineTo(x, y + h);
+            ctx.lineTo(x - h, y);
+            ctx.closePath();
+        }
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+    }
+
+    let globalTime = 0;
+
+    function drawLiquidParticleWave() {
+        pfCtx.clearRect(0, 0, pfWidth, pfHeight);
+        globalTime += 0.03;
+
+        const radius = 160;
+        const forceFactor = 18;
+        const spring = 0.07;
+        const friction = 0.80;
+
+        pFieldNodes.forEach(node => {
+            // Continuous Liquid Wave Ripple dynamics
+            const waveOffset = Math.sin(globalTime * 1.5 + node.baseX * 0.01 + node.phase) * 6;
+            const targetY = node.baseY + waveOffset;
+
+            if (pfMouse.active) {
+                const dx = node.x - pfMouse.x;
+                const dy = node.y - pfMouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < radius && dist > 0) {
+                    const force = (1 - dist / radius) * forceFactor;
+                    node.vx += (dx / dist) * force;
+                    node.vy += (dy / dist) * force;
+                }
+            }
+
+            // Spring return to origin
+            node.vx += (node.baseX - node.x) * spring;
+            node.vy += (targetY - node.y) * spring;
+
+            node.vx *= friction;
+            node.vy *= friction;
+
+            node.x += node.vx;
+            node.y += node.vy;
+
+            pfCtx.globalAlpha = node.alpha;
+            drawSDFShape(pfCtx, node.shape, node.x, node.y, node.size);
+        });
+
+        pfCtx.globalAlpha = 1.0;
+        requestAnimationFrame(drawLiquidParticleWave);
+    }
+    drawLiquidParticleWave();
+}
+
+// ==========================================================================
+// ADVANCED MODULAR TEXT ANIMATION ENGINE (Lusion.co Specification)
+// ==========================================================================
+function initAdvancedTextAnimations() {
+    const textElements = document.querySelectorAll('[data-text-anim]');
+
+    textElements.forEach(el => {
+        // Skip elements inside the pinned Lusion section — their visibility
+        // is controlled by the master scrubbed GSAP timeline, not scroll position.
+        if (el.closest('#lusion-experience')) return;
+
+        const animType = el.getAttribute('data-text-anim');
+        const text = el.innerText.trim();
+        if (!text) return;
+        el.innerHTML = ''; // Clear original content
+
+        // 1. Split Logic based on animation type
+        if (animType === 'flip-3d' || animType === 'skew-slide') {
+            text.split('').forEach(char => {
+                if (char === ' ') {
+                    el.innerHTML += `<span class="char-mask" style="width: 0.3em; display: inline-block;">&nbsp;</span>`;
+                } else {
+                    el.innerHTML += `<span class="word-wrap"><span class="char-inner">${char}</span></span>`;
+                }
+            });
+        } else if (animType === 'blur-fade') {
+            text.split(' ').forEach(word => {
+                el.innerHTML += `<span class="word-wrap"><span class="word-inner">${word}</span></span>&nbsp;`;
+            });
+        }
+
+        // 2. GSAP ScrollTrigger Animation Logic
+        const targets = el.querySelectorAll('.char-inner, .word-inner');
+        if (!targets.length) return;
+
+        let toVars = {
+            duration: 1.2,
+            stagger: 0.03,
+            scrollTrigger: {
+                trigger: el,
+                start: "top 92%",
+                toggleActions: "play none none none"
+            }
+        };
+
+        switch (animType) {
+            case 'flip-3d':
+                gsap.set(targets, { transformOrigin: "50% 100%", rotationX: -90, y: 40, opacity: 0 });
+                toVars.rotationX = 0;
+                toVars.y = 0;
+                toVars.opacity = 1;
+                toVars.ease = "back.out(1.7)";
+                break;
+
+            case 'skew-slide':
+                gsap.set(targets, { y: "120%", skewY: 15, opacity: 0 });
+                toVars.y = "0%";
+                toVars.skewY = 0;
+                toVars.opacity = 1;
+                toVars.ease = "expo.out";
+                break;
+
+            case 'blur-fade':
+                gsap.set(targets, { filter: "blur(12px)", opacity: 0, y: 20 });
+                toVars.filter = "blur(0px)";
+                toVars.opacity = 1;
+                toVars.y = 0;
+                toVars.stagger = 0.05;
+                toVars.ease = "power3.out";
+                break;
+        }
+
+        gsap.to(targets, toVars);
+    });
+}
+
+// Initialize the Modular Text Animation System
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initAdvancedTextAnimations();
+        ScrollTrigger.sort();
+        ScrollTrigger.refresh();
+    });
+} else {
+    initAdvancedTextAnimations();
+    ScrollTrigger.sort();
+    ScrollTrigger.refresh();
+}
+
+</script>
+</body>
+</html>

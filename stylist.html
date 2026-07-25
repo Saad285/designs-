@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stylist.css">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="main-nav">
+        <div class="nav-left">
+            <a href="index.html" class="logo-link">unravelld <em class="serif-italic">intelligence</em></a>
+            <span class="beta-badge">BETA</span>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="try-btn">Try now</a>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-area" id="main-area">
+        <!-- Blurred Video Background -->
+        <div class="video-background-container">
+            <video id="chatbot-bg-video" autoplay loop muted playsinline crossorigin="anonymous"></video>
+        </div>
+        <canvas id="dot-canvas" class="dot-canvas"></canvas>
+
+        <!-- Active Chat Thread (Hidden Initially) -->
+        <div class="chat-thread" id="chat-thread" style="display: none;"></div>
+
+        <!-- Center Interface (Exact Stitch Replica) -->
+        <div class="center-ui" id="center-ui">
+            <div id="hero-header">
+                <h1 class="hero-title">Design at the<br>speed of AI</h1>
+                <p class="hero-subtitle">Transform ideas into UI designs for mobile and web applications</p>
+            </div>
+
+            <div class="glass-input-container">
+                <textarea class="chat-textarea" id="chat-input" placeholder="What native mobile app shall we design?"></textarea>
+
+                <div class="input-controls">
+                    <div class="left-controls">
+                        <button class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:-2px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>App</button>
+                            <button class="toggle-btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:-2px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>Web</button>
+                        </div>
+                    </div>
+
+                    <div class="right-controls">
+                        <button class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg></button>
+                        <div class="model-dropdown">
+                            <svg class="sparkle" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eeb35c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg> 
+                            3 Flash 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <button class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg></button>
+                        <button class="submit-arrow" id="submit-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="suggestion-chips" id="suggestion-chips">
+                <div class="chip" onclick="submitPrompt('A browse tab for a mobile app for r...')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eeb35c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+                    A browse tab for a mobile app for r...
+                </div>
+                <div class="chip" onclick="submitPrompt('Mobile friendly home for a market...')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eeb35c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+                    Mobile friendly home for a market...
+                </div>
+                <div class="chip" onclick="submitPrompt('Make me an app for discovering C...')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eeb35c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
+                    Make me an app for discovering C...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatInput = document.getElementById('chat-input');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitPrompt(chatInput.value);
+            }
+        });
+
+        submitBtn.addEventListener('click', () => submitPrompt(chatInput.value));
+
+        function submitPrompt(text) {
+            if (!text.trim()) return;
+
+            document.getElementById('hero-header').style.display = 'none';
+            document.getElementById('suggestion-chips').style.display = 'none';
+            
+            const centerUi = document.getElementById('center-ui');
+            centerUi.classList.add('chat-active-mode');
+
+            const thread = document.getElementById('chat-thread');
+            thread.style.display = 'flex';
+            
+            chatInput.value = '';
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'c-msg c-user cinematic-enter';
+            userMsg.innerHTML = `<p>${text}</p>`;
+            thread.appendChild(userMsg);
+
+            thread.scrollTop = thread.scrollHeight;
+
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'c-msg c-ai cinematic-reveal';
+                aiMsg.innerHTML = `<p class="ai-text">Generating design system and components...</p>`;
+                thread.appendChild(aiMsg);
+                thread.scrollTop = thread.scrollHeight;
+            }, 1000);
+        }
+
+        // Interactive Physics Dot Grid
+        const canvas = document.getElementById('dot-canvas');
+        const ctx = canvas.getContext('2d');
+        const mainArea = document.getElementById('main-area');
+        
+        let width, height;
+        let dots = [];
+        const spacing = 28;
+        let mouse = { x: -1000, y: -1000, isDown: false, isHovering: false };
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            dots = [];
+            for (let x = 0; x < width; x += spacing) {
+                for (let y = 0; y < height; y += spacing) {
+                    dots.push({
+                        ox: x, oy: y,
+                        x: x, y: y,
+                        vx: 0, vy: 0
+                    });
+                }
+            }
+        }
+        initCanvas();
+        window.addEventListener('resize', initCanvas);
+
+        mainArea.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+
+        mainArea.addEventListener('mousedown', () => mouse.isDown = true);
+        mainArea.addEventListener('mouseup', () => mouse.isDown = false);
+        
+        mainArea.addEventListener('mouseleave', () => {
+            mouse.isHovering = false;
+            mouse.isDown = false;
+        });
+
+        mainArea.addEventListener('mouseenter', () => {
+            mouse.isHovering = true;
+        });
+
+        function animateDots() {
+            ctx.clearRect(0, 0, width, height);
+            
+            const friction = 0.75;
+            const spring = 0.08;
+            
+            // Constant repel radius and force for hover interaction
+            const repelRadius = 200;
+            const repelForce = 15; 
+
+            for (let dot of dots) {
+                let dx = dot.x - mouse.x;
+                let dy = dot.y - mouse.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                // Repel immediately on hover
+                if (mouse.isHovering && dist < repelRadius) {
+                    let force = (repelRadius - dist) / repelRadius;
+                    let angle = Math.atan2(dy, dx);
+                    // Push outward
+                    dot.vx += Math.cos(angle) * force * repelForce;
+                    dot.vy += Math.sin(angle) * force * repelForce;
+                }
+
+                // Pull back to original grid position
+                dot.vx += (dot.ox - dot.x) * spring;
+                dot.vy += (dot.oy - dot.y) * spring;
+
+                dot.vx *= friction;
+                dot.vy *= friction;
+
+                dot.x += dot.vx;
+                dot.y += dot.vy;
+
+                // Base opacity is 0.08. If mouse is near, increase brightness to simulate glow
+                let opacity = 0.08;
+                if (mouse.isHovering && dist < 200) {
+                    opacity += 0.42 * (1 - dist / 200);
+                }
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            requestAnimationFrame(animateDots);
+        }
+        animateDots();
+
+        // Background Video Playlist Logic
+        const chatbotBgVideo = document.getElementById('chatbot-bg-video');
+        const chatbotVideoPlaylist = ['bg-video.mp4', 'animate_it_k_and_make_the_far.mp4'];
+        let currentChatbotVideoIndex = 0;
+        
+        chatbotBgVideo.playbackRate = 0.6;
+        chatbotBgVideo.src = chatbotVideoPlaylist[currentChatbotVideoIndex];
+        
+        chatbotBgVideo.addEventListener('ended', () => {
+            currentChatbotVideoIndex = (currentChatbotVideoIndex + 1) % chatbotVideoPlaylist.length;
+            chatbotBgVideo.src = chatbotVideoPlaylist[currentChatbotVideoIndex];
+            chatbotBgVideo.play();
+            chatbotBgVideo.playbackRate = 0.6;
+        });
+        
+        chatbotBgVideo.removeAttribute('loop');
+    </script>
+</body>
+</html>

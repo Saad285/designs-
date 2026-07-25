@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>unravelld.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Custom Minimalist Cursor -->
+    <div class="cursor"></div>
+
+    <!-- Top Navigation -->
+    <nav class="nav">
+        <div class="logo">unravelld<span class="dot">.</span></div>
+        <div class="nav-right">
+            <a href="#" class="nav-link magnetic">Explore</a>
+            <a href="stylist.html" class="nav-link magnetic">Chatbot</a>
+            <a href="#" class="nav-link magnetic">Virtual Try-On</a>
+            <a href="#" class="nav-link magnetic">Visual Search</a>
+            <a href="#" class="nav-link magnetic">Price Watch</a>
+            <div class="nav-circle magnetic">
+                <div class="dots">
+                    <span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Smooth Scroll Wrapper -->
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+
+            <!-- Main Hero Content -->
+            <section class="hero-section">
+                <!-- Background: Raw Video + Ripple Canvas Overlay -->
+                <div class="scene-container">
+                    <video id="bg-video" class="video-bg" autoplay loop muted playsinline crossorigin="anonymous" style="opacity: 0; pointer-events: none; position: absolute; z-index: -999;" src="bg-video.mp4"></video>
+                    <canvas id="ripple-canvas"></canvas>
+                    <div class="scene-overlay"></div>
+                </div>
+
+                <div class="hero-content">
+                    <div class="subtitle split-lines">A FASHION AGGREGATOR & AI STYLIST</div>
+                    <h1 class="title">
+                        <span class="serif-part split-chars">Discover the</span><br>
+                        <span class="sans-part split-chars">unravelld</span>
+                    </h1>
+                    <button class="pill-btn magnetic" onclick="openModal()">
+                        Consult AI Stylist <span class="arrow">↘</span>
+                    </button>
+                </div>
+
+                <!-- Corner Widgets -->
+                <div class="widget-bottom-left magnetic">
+                    <div class="icon-bars">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="widget-text">Our 2026 Vision</span>
+                </div>
+                <div class="widget-bottom-center magnetic" onclick="openModules()">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </div>
+                <div class="widget-bottom-right">
+                    &copy;2026
+                </div>
+            </section>
+
+            <!-- StyleScout Feature Section -->
+            <section class="stylescout-section" id="stylescout-section">
+                <!-- Background WebGL Particles -->
+                <div class="stylescout-canvas-container">
+                    <canvas id="stylescout-canvas"></canvas>
+                </div>
+                
+                <div class="stylescout-content-wrap">
+                    <!-- The Growing Line -->
+                    <div class="stylescout-line-wrap">
+                        <svg class="stylescout-svg-line" viewBox="0 0 2 100" preserveAspectRatio="none">
+                            <line class="anim-line" x1="1" y1="0" x2="1" y2="100" />
+                        </svg>
+                    </div>
+
+                    <!-- The Distorting Cards -->
+                    <div class="stylescout-cards-grid">
+                        <div class="stylescout-card card-1">
+                            <div class="sc-inner">
+                                <span class="sc-title">Feature 1</span>
+                            </div>
+                        </div>
+                        <div class="stylescout-card card-2">
+                            <div class="sc-inner">
+                                <span class="sc-title">Feature 2</span>
+                            </div>
+                        </div>
+                        <div class="stylescout-card card-3">
+                            <div class="sc-inner">
+                                <span class="sc-title">Feature 3</span>
+                            </div>
+                        </div>
+                        <div class="stylescout-card card-4">
+                            <div class="sc-inner">
+                                <span class="sc-title">Feature 4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lusion-Inspired Experience Section -->
+            <section class="lusion-experience" id="lusion-experience">
+                
+                <!-- Stage 1: Dark Particle Hero & Big Typography -->
+                <div class="lusion-hero-stage">
+                    <canvas id="lusion-hero-canvas"></canvas>
+                    
+                    <div class="lusion-crosshair-grid">
+                        <span class="ch ch-tl">+</span>
+                        <span class="ch ch-tr">+</span>
+                        <span class="ch ch-cl">+</span>
+                        <span class="ch ch-cc">+</span>
+                        <span class="ch ch-cr">+</span>
+                        <span class="ch ch-bl">+</span>
+                        <span class="ch ch-br">+</span>
+                    </div>
+
+                    <div class="lusion-hero-content">
+                        <div class="lusion-text-left">
+                            <span class="lusion-tag" data-text-anim="skew-slide">WE ARE</span>
+                            <h2 class="lusion-main-title" data-text-anim="flip-3d">UNRAVELLED</h2>
+                            <p class="lusion-sub-text" data-text-anim="blur-fade">A FASHION INTELLIGENCE STUDIO</p>
+                        </div>
+                        <div class="lusion-text-right">
+                            <p class="lusion-serif-italic" data-text-anim="blur-fade">CRAFTING UNIQUE</p>
+                            <h3 class="lusion-sec-title" data-text-anim="skew-slide">DIGITAL EXPERIENCES</h3>
+                        </div>
+                    </div>
+
+                    <div class="lusion-scroll-indicator">
+                        <span>SCROLL TO EXPLORE</span>
+                        <div class="scroll-arrow-down">↓</div>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Horizontal Marquee / Receding Camera Statement -->
+                <div class="lusion-marquee-stage">
+                    <div class="lusion-marquee-track">
+                        <span class="lusion-marquee-item">A WORLDWIDE PLATFORM TRACKING 58+ FASHION HOUSES & AI INTELLIGENCE</span>
+                        <span class="lusion-marquee-item">•</span>
+                        <span class="lusion-marquee-item">REAL-TIME PRICE TRANSPARENCY & NEURAL STYLING</span>
+                        <span class="lusion-marquee-item">•</span>
+                        <span class="lusion-marquee-item">CRAFTING UNEXPECTED DIGITAL FASHION EXPERIENCES</span>
+                        <span class="lusion-marquee-item">•</span>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Brands We Track & Work With -->
+                <div class="lusion-brands-stage">
+                    <h2 class="lusion-brands-header" data-text-anim="blur-fade">BRANDS WE WORK WITH & TRACK</h2>
+                    <div class="lusion-brands-grid">
+                        <div class="brand-item">SAPPHIRE</div>
+                        <div class="brand-item">KHAADI</div>
+                        <div class="brand-item">SANA SAFINAZ</div>
+                        <div class="brand-item">MARIA.B</div>
+                        <div class="brand-item">GUL AHMED</div>
+                        <div class="brand-item">ELAN</div>
+                        <div class="brand-item">BAROQUE</div>
+                        <div class="brand-item">NISHAT LINEN</div>
+                        <div class="brand-item">CHARIZMA</div>
+                        <div class="brand-item">ASIM JOFA</div>
+                        <div class="brand-item">ZARA</div>
+                        <div class="brand-item">MANGO</div>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Electric Blue Phase (Outline Text, Cards & Particle CTA) -->
+                <div class="lusion-blue-stage">
+                    <!-- Background Outline Typography -->
+                    <div class="lusion-outline-bg-text">FASHION INTELLIGENCE</div>
+
+                    <div class="lusion-expertise-header">
+                        <span class="lusion-sub-label" data-text-anim="blur-fade">MULTIDISCIPLINARY EXPERTISE ACROSS STRATEGY, CREATIVE, TECHNOLOGY AND PRODUCTION</span>
+                        <h2 class="lusion-expertise-title" data-text-anim="flip-3d">AREA OF EXPERTISE</h2>
+                    </div>
+
+                    <!-- 3D Playing Cards Deck -->
+                    <div class="lusion-cards-container">
+                        <!-- Card 1 -->
+                        <div class="lusion-card card-1" data-index="1">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>STRATEGY</h3>
+                                        <span class="card-icon-symbol">Strategy ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>Digital Experience Strategy</li>
+                                        <li>Price Watch Intelligence</li>
+                                        <li>Markup Analytics</li>
+                                        <li>Trend Forecasting</li>
+                                        <li>Research & Discovery</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">01</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="lusion-card card-2" data-index="2">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>CREATIVE</h3>
+                                        <span class="card-icon-symbol">Creative ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>Art Direction</li>
+                                        <li>Virtual Try-On UI/UX</li>
+                                        <li>Motion Design</li>
+                                        <li>Interactive Design</li>
+                                        <li>Editorial Curation</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">02</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="lusion-card card-3" data-index="3">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>TECH</h3>
+                                        <span class="card-icon-symbol">Tech ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>WebGL / Three.js Engines</li>
+                                        <li>Front End Development</li>
+                                        <li>Neural Style Matching</li>
+                                        <li>Interactive Installations</li>
+                                        <li>AR & VR Experiences</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">03</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div class="lusion-card card-4" data-index="4">
+                            <div class="card-inner-wrap">
+                                <div class="card-face card-back">
+                                    <div class="card-border-frame"></div>
+                                    <div class="card-back-pattern">
+                                        <div class="card-symbol">✦</div>
+                                        <div class="card-logo-text">UNRAVELLED</div>
+                                        <div class="card-symbol">✦</div>
+                                    </div>
+                                </div>
+                                <div class="card-face card-front">
+                                    <div class="card-front-top">
+                                        <h3>PRODUCTION</h3>
+                                        <span class="card-icon-symbol">Production ↗</span>
+                                    </div>
+                                    <ul class="card-bullets">
+                                        <li>58+ Brand Sync Engine</li>
+                                        <li>Procedural Modeling</li>
+                                        <li>3D Optimization</li>
+                                        <li>Animation Pipelines</li>
+                                        <li>Real-time Sales Alerts</li>
+                                    </ul>
+                                    <div class="card-front-bottom">
+                                        <span class="brand-tag">unravelld.</span>
+                                        <span class="card-num">04</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Particle Text CTA (WebGL Shader Shatter Effect) -->
+                    <div class="lusion-particle-cta-wrap" id="text-shatter-wrap" style="position: relative; width: 100%; height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000;">
+                        <!-- WebGL Canvas for GPGPU Particles -->
+                        <canvas id="text-shatter-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto;"></canvas>
+                        
+                        <!-- Fallback / Screen-reader text -->
+                        <div class="lusion-cta-inner" style="pointer-events: none; opacity: 0; position: absolute;">
+                            <span class="cta-question">IS YOUR FASHION ENGINE READY TO GO WILD?</span>
+                            <h2 class="cta-big-heading">Let's work together!</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 5: Off-White Footer Transition (Contact & Newsletter) -->
+                <div class="lusion-light-footer">
+                    <div class="lusion-footer-col">
+                        <h4>unravelld studio</h4>
+                        <p>Suite 100<br>Fashion Avenue<br>Karachi / Lahore<br>Pakistan</p>
+                    </div>
+                    <div class="lusion-footer-col">
+                        <h4>Socials</h4>
+                        <ul>
+                            <li><a href="#">Twitter / X</a></li>
+                            <li><a href="#">Instagram</a></li>
+                            <li><a href="#">LinkedIn</a></li>
+                        </ul>
+                    </div>
+                    <div class="lusion-footer-col newsletter-col">
+                        <h3 data-text-anim="flip-3d">Subscribe to<br>our newsletter</h3>
+                        <div class="newsletter-input-group">
+                            <input type="email" placeholder="Enter your email...">
+                            <button class="magnetic">→</button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Explore Brands Section -->
+            <section class="brands-section" id="explore-brands">
+                <div class="horizontal-container">
+                    
+                    <!-- Slide 1: Intro -->
+                    <div class="brand-slide" data-theme="#1a1a1a">
+                        <div class="brand-content center-content">
+                            <h2 class="massive-title serif-part split-chars">The Houses.</h2>
+                            <p class="brand-desc split-lines">Swipe to explore 58 partner collections, tracked in real-time for absolute price transparency.</p>
+                            <div class="scroll-indicator">Scroll →</div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Sapphire (Collage Frame) -->
+                    <div class="brand-slide" data-theme="#0a1b2a">
+                        <div class="brand-content layout-collage">
+                            <div class="collage-text stagger-up">
+                                <h2 class="massive-title sans-part split-chars">Sapphire</h2>
+                                <p class="brand-desc split-lines">Our Price Watch module recently detected a 64% markup just 5 days prior to their summer sale.</p>
+                            </div>
+                            <div class="collage-frame frame-1 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="collage-frame frame-2 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="stats collage-stats stagger-up">
+                                <div class="stat"><span>986</span> Pieces Tracked</div>
+                                <div class="stat"><span>42%</span> Avg. Markup</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Khaadi (Editorial Overlap) -->
+                    <div class="brand-slide" data-theme="#2a3622">
+                        <div class="brand-content layout-editorial">
+                            <div class="editorial-frame stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1550614000-4b95d466f2fb?q=80&w=1200&auto=format&fit=crop');"></div>
+                            </div>
+                            <h2 class="massive-title serif-part split-chars editorial-title" style="font-style: italic;">Khaadi</h2>
+                            <div class="editorial-text stagger-up">
+                                <p class="brand-desc">Users frequently match luxury lawn designs to Khaadi's Pret collections via our Visual Engine.</p>
+                            </div>
+                            <div class="stats editorial-stats stagger-up">
+                                <div class="stat"><span>1,240</span> Tracked</div>
+                                <div class="stat"><span>Rs 4.5k</span> True Value</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Sana Safinaz (Scattered Frames) -->
+                    <div class="brand-slide" data-theme="#381116">
+                        <div class="brand-content layout-scattered">
+                            <h2 class="massive-title sans-part split-chars scattered-title">Safinaz</h2>
+                            <div class="scatter-frame scatter-1 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-frame scatter-2 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1605001011157-798889988b77?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-frame scatter-3 stagger-up">
+                                <div class="b-image parallax-img" style="background-image: url('https://images.unsplash.com/photo-1574015974293-817f0ebebb74?q=80&w=800&auto=format&fit=crop');"></div>
+                            </div>
+                            <div class="scatter-text stagger-up">
+                                <div class="stats" style="margin-top:0;">
+                                    <div class="stat"><span>742</span> Pieces Tracked</div>
+                                    <div class="stat"><span>Luxury</span> Category</div>
+                                </div>
+                                <p class="brand-desc split-lines" style="margin-top: 2rem;">Our Graph-Based Outfit Builder seamlessly coordinates Muzlin collections.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Modules Overlay (Triggered by Globe Icon) -->
+    <div class="modules-overlay" id="modules-overlay">
+        <!-- 3D Wireframe Globe Canvas (Fixed in background) -->
+        <canvas id="globe-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.95; mix-blend-mode: screen; filter: drop-shadow(0 0 1px rgba(255,255,255,0.9)) drop-shadow(0 0 3px rgba(255,255,255,0.6));"></canvas>
+        
+        <div class="modules-close magnetic" onclick="closeModules()">✕</div>
+        
+        <div class="modules-hint">Swipe up / scroll to explore</div>
+        
+        <!-- The massive draggable canvas -->
+        <div class="modules-canvas" id="modules-canvas">
+            
+            <!-- Mid-Distance Background Pictures (Scattered like stars) -->
+            <div class="bg-stars">
+                <div class="side-image polaroid" style="top: 50vh; left: 50vw; transform: scale(0.5) rotate(-15deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 30vh; left: 180vw; transform: scale(0.6) rotate(10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 80vh; left: 350vw; transform: scale(0.4) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 150vh; left: 40vw; transform: scale(0.7) rotate(25deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 120vh; left: 200vw; transform: scale(0.5) rotate(-20deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 180vh; left: 360vw; transform: scale(0.6) rotate(12deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 250vh; left: 80vw; transform: scale(0.45) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 280vh; left: 200vw; transform: scale(0.55) rotate(-18deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 220vh; left: 320vw; transform: scale(0.65) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350vh; left: 40vw; transform: scale(0.5) rotate(-10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 380vh; left: 220vw; transform: scale(0.6) rotate(15deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 340vh; left: 350vw; transform: scale(0.4) rotate(-25deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 50vh; left: 260vw; transform: scale(0.5) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350vh; left: 120vw; transform: scale(0.55) rotate(-12deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 1 -->
+            <div class="module-cluster cluster-pos-1">
+                <!-- 6 Images forming a ring around the card -->
+                <div class="side-image polaroid" style="top: -320px; left: -480px; transform: scale(0.9) rotate(-12deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -380px; left: 20px; transform: scale(0.8) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -250px; left: 450px; transform: scale(1) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 300px; left: -450px; transform: scale(0.85) rotate(-6deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 350px; left: -20px; transform: scale(1.1) rotate(-2deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 250px; left: 450px; transform: scale(0.9) rotate(10deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                
+                <!-- Card 1: AI Stylist -->
+                <div class="module-card" style="--delay: 0.1s;" data-drama="mask-up">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-1">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">01</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">AI <em class="serif-italic">Stylist</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Conversational fashion intelligence trained on 58 Pakistani brands. Seamlessly converse in Urdu or English.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Chatbot</span><span class="drama-tag">NLP</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 2 -->
+            <div class="module-cluster cluster-pos-2">
+                <div class="side-image polaroid" style="top: -300px; left: -450px; transform: scale(0.8) rotate(-8deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -360px; left: 50px; transform: scale(0.9) rotate(3deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -220px; left: 420px; transform: scale(0.95) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 320px; left: -420px; transform: scale(1) rotate(6deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 380px; left: 10px; transform: scale(0.85) rotate(-3deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 280px; left: 480px; transform: scale(1.05) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <!-- Card 2: Visual Try-On -->
+                <div class="module-card" style="--delay: 0.2s;" data-drama="blur-in">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-2">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">02</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">Visual <em class="serif-italic">Try-On</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Upload your photo and see any outfit draped onto you instantly with cinematic realism.</p>
+                                    <div class="mc-tags"><span class="drama-tag">AR</span><span class="drama-tag">Vision</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 3 -->
+            <div class="module-cluster cluster-pos-3">
+                <div class="side-image landscape" style="top: -350px; left: -400px; transform: scale(0.95) rotate(-4deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -390px; left: 80px; transform: scale(0.85) rotate(7deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -260px; left: 460px; transform: scale(1.1) rotate(-6deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 280px; left: -460px; transform: scale(0.8) rotate(5deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 360px; left: -40px; transform: scale(0.9) rotate(-5deg);">
+                    <div class="si-img" style="background-image: url('assets/img1.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 240px; left: 400px; transform: scale(1) rotate(4deg);">
+                    <div class="si-img" style="background-image: url('assets/img2.jpg');"></div>
+                </div>
+                <!-- Card 3: Price Watch -->
+                <div class="module-card" style="--delay: 0.3s;" data-drama="split-slide">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-3">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">03</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">Price <em class="serif-italic">Watch</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Real-time market tracking. We detect fake markups before synthetic sales go live.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Analytics</span><span class="drama-tag">Truth</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUSTER 4 -->
+            <div class="module-cluster cluster-pos-4">
+                <div class="side-image polaroid" style="top: -280px; left: -480px; transform: scale(0.9) rotate(-9deg);">
+                    <div class="si-img" style="background-image: url('assets/img3.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: -340px; left: -20px; transform: scale(1.1) rotate(2deg);">
+                    <div class="si-img" style="background-image: url('assets/img4.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: -220px; left: 440px; transform: scale(0.8) rotate(-7deg);">
+                    <div class="si-img" style="background-image: url('assets/img5.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 330px; left: -430px; transform: scale(0.95) rotate(8deg);">
+                    <div class="si-img" style="background-image: url('assets/img6.jpg');"></div>
+                </div>
+                <div class="side-image polaroid" style="top: 370px; left: 60px; transform: scale(0.85) rotate(-4deg);">
+                    <div class="si-img" style="background-image: url('assets/img7.jpg');"></div>
+                </div>
+                <div class="side-image landscape" style="top: 270px; left: 460px; transform: scale(1) rotate(6deg);">
+                    <div class="si-img" style="background-image: url('assets/img8.jpg');"></div>
+                </div>
+                <!-- Card 4: Outfit Builder -->
+                <div class="module-card" style="--delay: 0.4s;" data-drama="clip-reveal">
+                    <div class="mc-float-wrapper">
+                        <div class="mc-inner">
+                            <div class="mc-bg mc-bg-4">
+                                <div class="anim-blob blob-1"></div><div class="anim-blob blob-2"></div><div class="anim-blob blob-3"></div>
+                            </div>
+                            <div class="mc-content">
+                                <div class="mc-top">
+                                    <span class="mc-num">04</span>
+                                    <div class="mc-line"></div>
+                                </div>
+                                <h3 class="drama-title">Outfit <em class="serif-italic">Builder</em></h3>
+                                <div class="drama-text-wrap">
+                                    <p class="drama-desc">Graph-based engine coordinating fragmented pieces into a single cohesive runway look.</p>
+                                    <div class="mc-tags"><span class="drama-tag">Graph AI</span><span class="drama-tag">Curation</span></div>
+                                </div>
+                            </div>
+                            <div class="mc-shine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Emotive AI Stylist Chat Panel -->
+    <div class="chat-panel-overlay" id="stylist-panel">
+        <div class="chat-panel-bg"></div>
+        <div class="panel-close magnetic" onclick="closeChatPanel()">✕</div>
+        
+        <div class="chat-panel-content">
+            <!-- The Soul Orb -->
+            <div class="soul-orb-container">
+                <div class="soul-orb"></div>
+                <div class="soul-orb-glow"></div>
+            </div>
+
+            <div class="chat-header-emotive">
+                <h2>unravelld <em class="serif-italic">intelligence</em></h2>
+                <p>Listening...</p>
+            </div>
+            
+            <div class="chat-messages-emotive">
+                <div class="c-msg c-user">
+                    <p>Eid k liye pastel lawn chahiye, under Rs. 6,000.</p>
+                </div>
+                <div class="c-msg c-ai">
+                    <p class="ai-text">I have verified genuine sales across our database. Here is a stunning match for your criteria.</p>
+                    <div class="fashion-card">
+                        <div class="fc-img" style="background-image: url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=400&auto=format&fit=crop');"></div>
+                        <div class="fc-info">
+                            <div class="fc-top">
+                                <h4>Sapphire</h4>
+                                <span class="badge">Verified Sale</span>
+                            </div>
+                            <p>Embroidered 3-Piece Lawn</p>
+                            <span class="price">Rs 4,990 <span class="old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.9em; margin-left: 8px;">Rs 6,990</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-emotive">
+                <div class="input-pill">
+                    <div class="input-glow"></div>
+                    <input type="text" placeholder="Talk to unravelld..." disabled>
+                    <button class="magnetic">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mega Menu Overlay (Unseen Studio Style) -->
+    <div class="mega-menu" id="mega-menu">
+        <div class="mega-menu-close magnetic" onclick="closeMegaMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        
+        <div class="mega-menu-content">
+            <nav class="mega-nav">
+                <a href="index.html" class="mega-link"><span class="mega-num">01</span>Index</a>
+                <a href="stylist.html" class="mega-link"><span class="mega-num">02</span>Chatbot</a>
+                <a href="#" class="mega-link"><span class="mega-num">03</span>Projects</a>
+                <a href="#" class="mega-link hollow"><span class="mega-num">04</span>World <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+            </nav>
+
+            <div class="mega-footer">
+                <div class="mega-contact">
+                    <p>hello@unravelld.co</p>
+                    <p>(+92) 300 123 4567</p>
+                </div>
+                <div class="mega-socials">
+                    <a href="#">TWITTER</a>
+                    <a href="#">INSTAGRAM</a>
+                    <a href="#">LINKEDIN</a>
+                    <a href="#">BEHANCE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cosmic Light-Speed Portal Transition -->
+    <div class="cosmic-transition" id="cosmic-transition">
+        <div class="warp-tunnel"></div>
+        <div class="warp-ring ring-1"></div>
+        <div class="warp-ring ring-2"></div>
+        <div class="warp-core"></div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/examples/jsm/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="script.js"></script>
+    <script type="module" src="textShatter.js"></script>
+</body>
+</html>

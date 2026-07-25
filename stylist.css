@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --bg-dark: #050505;
+    --sidebar-bg: #0a0a0a;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-serif: 'Instrument Serif', serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ---------------------------------------------------
+   Removed Sidebar
+--------------------------------------------------- */
+
+/* ---------------------------------------------------
+   Main Content Area (Stitch UI Replica)
+--------------------------------------------------- */
+.main-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Top Nav */
+.main-nav {
+    position: absolute; top: 0; left: 0; width: 100%;
+    padding: 1.5rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 20;
+}
+.nav-left { display: flex; align-items: center; gap: 0.5rem; }
+.logo-link {
+    color: #fff; text-decoration: none; font-size: 1.4rem; font-weight: 500;
+    letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.35rem;
+}
+.logo-link em {
+    font-family: var(--font-serif); font-style: italic; font-weight: 400;
+    color: rgba(255, 255, 255, 0.75); font-size: 1.5rem;
+}
+.beta-badge {
+    border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.7);
+    padding: 0.1rem 0.5rem; border-radius: 100px; font-size: 0.65rem; letter-spacing: 1px;
+}
+.try-btn {
+    background: #fff; color: #000; text-decoration: none;
+    padding: 0.5rem 1.2rem; border-radius: 100px; font-size: 0.9rem; font-weight: 500;
+}
+
+/* Interactive Dot Grid Canvas */
+.dot-canvas {
+    position: absolute; inset: 0;
+    z-index: 1; pointer-events: none;
+    width: 100%; height: 100%;
+}
+
+/* Blurred Video Background */
+.video-background-container {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    background: var(--bg-dark); 
+}
+.video-background-container video {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: blur(60px) brightness(0.6) saturate(1.5);
+    transform: scale(1.15); /* Prevents blurred edges from showing the background */
+    opacity: 0.8;
+}
+
+/* Center UI Base */
+.center-ui {
+    position: absolute; z-index: 5;
+    width: 100%; max-width: 800px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 0 2rem;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    transition: all 0.8s var(--ease-expo);
+}
+
+/* Active Chat Mode Transformation */
+.center-ui.chat-active-mode {
+    top: auto; bottom: 2rem;
+    transform: translate(-50%, 0);
+}
+
+.hero-title {
+    font-family: var(--font-sans);
+    font-size: 4.5rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    text-align: center;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+.hero-subtitle {
+    font-family: var(--font-sans);
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3.5rem;
+    text-align: center;
+}
+
+/* Massive Input Box (Ultra Glassmorphism) */
+.glass-input-container {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(50px) saturate(150%); 
+    -webkit-backdrop-filter: blur(50px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 
+        0 40px 80px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 0 40px rgba(255, 255, 255, 0.02);
+    display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+.chat-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    resize: none;
+    outline: none;
+    height: 70px;
+    line-height: 1.4;
+}
+.chat-textarea::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+.input-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-controls, .right-controls {
+    display: flex; align-items: center; gap: 0.8rem;
+}
+
+.icon-btn {
+    background: transparent; border: none; color: rgba(255,255,255,0.6);
+    font-size: 1.2rem; cursor: pointer; padding: 0.5rem;
+    display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { color: #fff; }
+
+.toggle-group {
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    padding: 4px;
+}
+.toggle-btn {
+    background: transparent; border: none; color: rgba(255,255,255,0.6);
+    padding: 0.4rem 1rem; border-radius: 100px; cursor: pointer; font-size: 0.85rem;
+}
+.toggle-btn.active {
+    background: rgba(255,255,255,0.15); color: #fff;
+}
+
+.model-dropdown {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; padding: 0.4rem 0.8rem; border-radius: 100px; font-size: 0.85rem;
+    display: flex; align-items: center; gap: 0.4rem; cursor: pointer;
+}
+
+.submit-arrow {
+    width: 35px; height: 35px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.2rem; transition: background 0.3s;
+}
+.submit-arrow:hover { background: rgba(255,255,255,0.2); }
+
+/* Suggestion Chips */
+.suggestion-chips {
+    display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center;
+    margin-top: 2.5rem;
+}
+.chip {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    padding: 0.7rem 1.4rem; border-radius: 100px;
+    font-size: 0.85rem; color: rgba(255, 255, 255, 0.7);
+    cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff; border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ---------------------------------------------------
+   Active Chat Thread
+--------------------------------------------------- */
+.chat-thread {
+    position: absolute; top: 80px; bottom: 200px; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 800px; padding: 2rem;
+    display: flex; flex-direction: column; gap: 3rem;
+    overflow-y: auto; z-index: 4;
+}
+.chat-thread::-webkit-scrollbar { width: 4px; }
+.chat-thread::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.c-msg { max-width: 85%; }
+.c-user { align-self: flex-end; text-align: right; }
+.c-user p { font-family: var(--font-serif); font-size: 1.8rem; font-style: italic; color: #fff; line-height: 1.3; }
+.c-ai { align-self: flex-start; }
+.ai-text { font-size: 1.1rem; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; font-weight: 300; }
+
+.cinematic-enter { animation: cinEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes cinEnter {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cinematic-reveal {
+    animation: cinReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0; filter: blur(20px); transform: translateY(20px);
+}
+@keyframes cinReveal {
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* Fashion Card in Chat */
+.fashion-card {
+    display: flex; gap: 1.5rem; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 1.2rem;
+    backdrop-filter: blur(20px); transition: transform 0.4s ease, background 0.4s ease;
+}
+.fashion-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); }
+.fc-img { width: 100px; height: 130px; background-size: cover; background-position: center; border-radius: 16px; }
+.fc-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.fc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.fc-top h4 { font-size: 1.3rem; font-weight: 500; color: #fff; }
+.fc-info p { font-size: 0.95rem; color: rgba(255,255,255,0.6); margin-bottom: 1rem; }
+.fc-info .price { font-size: 1.1rem; font-weight: 600; color: #fff; }
+
+/* Custom ease variable */
+:root { --ease-expo: cubic-bezier(0.16, 1, 0.3, 1); }
