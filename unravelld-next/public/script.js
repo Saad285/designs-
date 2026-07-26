@@ -1339,6 +1339,22 @@ function initAdvancedTextAnimations() {
     }
 
 
+    // Expertise SVG Line
+    const expLine = document.querySelector('.expertise-anim-line');
+    if (expLine) {
+        const expLength = expLine.getTotalLength();
+        gsap.set(expLine, { strokeDasharray: expLength, strokeDashoffset: expLength });
+        gsap.to(expLine, {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".expertise-content-wrap",
+                start: "top 80%",
+                end: "bottom 50%",
+                scrub: 1
+            }
+        });
+    }
 
     // Interactive Footer Particles (Points-based, proven approach)
     const footerCanvas = document.getElementById('footer-particle-canvas');

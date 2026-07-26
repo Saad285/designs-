@@ -88,8 +88,7 @@ const initTextShatter = () => {
             // Mouse Repulsion
             vec3 mPos = vec3(mousePos.x, mousePos.y, 0.0);
             float dist = distance(p, mPos);
-            // Protect against divide by zero or extreme proximity
-            if (dist < 15.0 && dist > 0.1) {
+            if (dist < 15.0) {
                 vec3 dir = normalize(p - mPos);
                 v += dir * (15.0 - dist) * 0.1;
             }
@@ -174,18 +173,13 @@ const initTextShatter = () => {
         particleUniforms = {
             texturePosition: { value: null },
             color1: { value: new THREE.Color(0xffffff) },
-            color2: { value: new THREE.Color(0xddeeff) },
-            uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) }
+            color2: { value: new THREE.Color(0xddeeff) }
         };
 
         const material = new THREE.ShaderMaterial({
             uniforms: particleUniforms,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
             vertexShader: `
                 uniform sampler2D texturePosition;
-                uniform float uPixelRatio;
                 attribute float aRand;
                 varying float vRand;
                 
@@ -195,11 +189,8 @@ const initTextShatter = () => {
                     vec3 pos = posTemp.xyz;
                     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
                     
-                    // Point size with Device Pixel Ratio scaling
-                    gl_PointSize = (1.5 + vRand * 2.5) * (100.0 / -mvPosition.z) * uPixelRatio;
-                    // Clamp to prevent massive blobs
-                    gl_PointSize = clamp(gl_PointSize, 1.0, 15.0 * uPixelRatio);
-                    
+                    // Point size
+                    gl_PointSize = (1.5 + vRand * 2.5) * (100.0 / -mvPosition.z);
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -209,14 +200,12 @@ const initTextShatter = () => {
                 varying float vRand;
                 
                 void main() {
-                    // Glow Circle
-                    float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
-                    float alpha = 0.05 / distanceToCenter - 0.1;
-                    
-                    if (alpha < 0.01) discard;
+                    // Circle
+                    vec2 coord = gl_PointCoord - vec2(0.5);
+                    if(length(coord) > 0.5) discard;
                     
                     vec3 color = mix(color1, color2, vRand);
-                    gl_FragColor = vec4(color, alpha);
+                    gl_FragColor = vec4(color, 1.0);
                 }
             `,
             transparent: true,

@@ -92,7 +92,12 @@ videoElement.playbackRate = 0.6;
 videoElement.addEventListener('ended', () => {
     currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
     videoElement.src = videoPlaylist[currentVideoIndex];
-    videoElement.play();
+    const playPromise = videoElement.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.warn("Background video play interrupted (likely power saving mode):", error);
+        });
+    }
     videoElement.playbackRate = 0.6; // Re-apply slowdown on new source
 });
 
@@ -252,15 +257,14 @@ tl.to(".hero-content .char-inner", { y: 0, rotation: 0, duration: 1.2, stagger: 
 const horizontalContainer = document.querySelector('.horizontal-container');
 const slides = gsap.utils.toArray('.brand-slide');
 
-const scrollTween = gsap.to(horizontalContainer, {
-    x: () => -(horizontalContainer.scrollWidth - window.innerWidth),
+const scrollTween = gsap.to(slides, {
+    xPercent: -100 * (slides.length - 1),
     ease: "none",
     scrollTrigger: {
         trigger: ".brands-section",
         pin: true,
         scrub: true,
-        end: "+=3000",
-        anticipatePin: 1
+        end: () => "+=" + horizontalContainer.offsetWidth,
     }
 });
 
@@ -789,12 +793,7 @@ function initStyleScoutSection() {
         gsap.to(svgLine, {
             strokeDashoffset: 0,
             ease: "none",
-            scrollTrigger: {
-                trigger: section,
-                start: "top 70%",
-                end: "top 20%",
-                scrub: true
-            }
+            scrollTrigger: { trigger: section, start: "top 80%", end: "bottom 50%", scrub: 1 }
         });
     }
 
@@ -827,16 +826,18 @@ if (lusionSec) {
     // 1. Setup Master Pinned GSAP ScrollTrigger Scrubbed Timeline
     const masterTL = gsap.timeline({
         scrollTrigger: {
-            trigger: "#lusion-scroll-track",
+            trigger: "#lusion-experience",
             start: "top top",
-            end: "bottom bottom",
-            scrub: true
+            end: "+=2000",
+            scrub: true,
+            pin: true,
+            pinSpacing: true
         }
     });
 
     // --- Sequence 1: Hero Text & Particle Recede ---
     masterTL.to(".lusion-hero-content, .lusion-crosshair-grid, .lusion-scroll-indicator", {
-        scale: 0.75, opacity: 0, y: -80, duration: 1
+        scale: 0.75, y: -80, duration: 1
     }, 0)
     .to("#lusion-hero-canvas", { scale: 0.5, opacity: 0.1, duration: 1 }, 0);
 
@@ -882,6 +883,22 @@ if (lusionSec) {
     .to(".lusion-particle-cta-wrap", { opacity: 0, y: -80, duration: 1 }, 19);
 
     // --- Sequence 7: Off-White Light Footer Rolls Up ---
+    // Growing Irregular Line Behind Lusion Cards (Standalone Trigger)
+    const cardsLine = document.querySelector('.lusion-cards-anim-line');
+    if (cardsLine) {
+        const cardsLineLen = cardsLine.getTotalLength();
+        gsap.set(cardsLine, { strokeDasharray: cardsLineLen, strokeDashoffset: cardsLineLen });
+        gsap.to(cardsLine, {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".lusion-expertise-section",
+                start: "top 70%",
+                end: "bottom 30%",
+                scrub: 1
+            }
+        });
+    }
     masterTL.to(".lusion-light-footer", { y: "0%", duration: 2, ease: "power3.out" }, 19.8);
 }
 
@@ -957,8 +974,19 @@ if (heroCanvas && typeof THREE !== 'undefined') {
                 pos.y += cos(time + pos.z * 2.5) * 0.18;
                 pos.z += sin(time + pos.x * 2.5) * 0.18;
 
-                // Mouse Repulsion in 3D
                 vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                
+                // Mouse Repulsion in View Space
+                // Map NDC (-1 to 1) to approximate View Space
+                vec2 mouseView = uMouse * 4.5; 
+                float dist = distance(mvPos.xy, mouseView);
+                if (dist < 2.5) {
+                    vec2 dir = normalize(mvPos.xy - mouseView);
+                    float force = (2.5 - dist) / 2.5;
+                    // Push outwards and slightly towards camera (z)
+                    mvPos.xy += dir * force * 1.5;
+                    mvPos.z += force * 1.0; 
+                }
                 
                 gl_PointSize = (18.0 * aScale) * (1.0 / -mvPos.z);
                 gl_Position = projectionMatrix * mvPos;
@@ -998,10 +1026,17 @@ if (heroCanvas && typeof THREE !== 'undefined') {
     });
 
     const clock = new THREE.Clock();
+    // Smooth mouse lerping
+    const smoothedMouse = new THREE.Vector2(-999, -999);
+    
     function animateSwarm() {
         requestAnimationFrame(animateSwarm);
         const elapsedTime = clock.getElapsedTime();
         material.uniforms.uTime.value = elapsedTime;
+        
+        // Lerp mouse for smooth repulsion
+        smoothedMouse.lerp(mouse, 0.08);
+        material.uniforms.uMouse.value.copy(smoothedMouse);
 
         // Slow cinematic rotation of entire particle cloud
         particlesMesh.rotation.y = elapsedTime * 0.08;
@@ -1159,6 +1194,7 @@ if (pFieldCanvas) {
 // ==========================================================================
 function initAdvancedTextAnimations() {
     const textElements = document.querySelectorAll('[data-text-anim]');
+    const allChars = [];
 
     textElements.forEach(el => {
         const animType = el.getAttribute('data-text-anim');
@@ -1172,7 +1208,7 @@ function initAdvancedTextAnimations() {
                 if (char === ' ') {
                     el.innerHTML += `<span class="char-mask" style="width: 0.3em; display: inline-block;">&nbsp;</span>`;
                 } else {
-                    el.innerHTML += `<span class="word-wrap"><span class="char-inner">${char}</span></span>`;
+                    el.innerHTML += `<span class="word-wrap"><span class="char-inner" style="display:inline-block; transition: color 0.3s;">${char}</span></span>`;
                 }
             });
         } else if (animType === 'blur-fade') {
@@ -1184,14 +1220,23 @@ function initAdvancedTextAnimations() {
         // 2. GSAP ScrollTrigger Animation Logic
         const targets = el.querySelectorAll('.char-inner, .word-inner');
         if (!targets.length) return;
+        
+        targets.forEach(t => {
+            if (t.classList.contains('char-inner')) allChars.push(t);
+        });
 
         let toVars = {
             duration: 1.2,
-            stagger: 0.03,
+            stagger: 0.05,
             scrollTrigger: {
                 trigger: el,
-                start: "top 92%",
+                start: "top 80%", // Start animating when closer to center
                 toggleActions: "play none none none"
+            },
+            onComplete: () => {
+                // Remove overflow hidden from wrappers so magnetic repel can move characters freely!
+                const wrappers = el.querySelectorAll('.word-wrap');
+                wrappers.forEach(w => w.style.overflow = 'visible');
             }
         };
 
@@ -1203,38 +1248,347 @@ function initAdvancedTextAnimations() {
                 toVars.opacity = 1;
                 toVars.ease = "back.out(1.7)";
                 break;
-
             case 'skew-slide':
-                gsap.set(targets, { y: "120%", skewY: 15, opacity: 0 });
+                gsap.set(targets, { y: "120%", skewY: 10, opacity: 0 });
                 toVars.y = "0%";
                 toVars.skewY = 0;
                 toVars.opacity = 1;
-                toVars.ease = "expo.out";
+                toVars.ease = "power4.out";
                 break;
-
             case 'blur-fade':
-                gsap.set(targets, { filter: "blur(12px)", opacity: 0, y: 20 });
+                gsap.set(targets, { filter: "blur(10px)", opacity: 0, y: 20 });
                 toVars.filter = "blur(0px)";
                 toVars.opacity = 1;
                 toVars.y = 0;
-                toVars.stagger = 0.05;
                 toVars.ease = "power3.out";
                 break;
         }
 
         gsap.to(targets, toVars);
     });
+
+    // 3. Magnetic Repel Effect (Alive on Touch)
+    const handleRepel = (clientX, clientY) => {
+        allChars.forEach(char => {
+            const rect = char.getBoundingClientRect();
+            if (rect.width === 0) return;
+            const charX = rect.left + rect.width / 2;
+            const charY = rect.top + rect.height / 2;
+            const distX = clientX - charX;
+            const distY = clientY - charY;
+            const dist = Math.sqrt(distX * distX + distY * distY);
+            
+            const maxDist = 200; // Increased Trigger distance
+            
+            if (dist < maxDist) {
+                // Push away violently (alive!)
+                const pushStrength = (maxDist - dist) / maxDist;
+                const pushX = -(distX / dist) * pushStrength * 60;
+                const pushY = -(distY / dist) * pushStrength * 60;
+                
+                gsap.to(char, {
+                    x: pushX,
+                    y: pushY,
+                    scale: 1.2 + (pushStrength * 0.3),
+                    rotationZ: (Math.random() - 0.5) * 45 * pushStrength,
+                    color: '#fff',
+                    duration: 0.3,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            } else {
+                // Spring back
+                gsap.to(char, {
+                    x: 0,
+                    y: 0,
+                    scale: 1,
+                    rotationZ: 0,
+                    color: '', // Revert to original
+                    duration: 1.2,
+                    ease: "elastic.out(1, 0.3)",
+                    overwrite: "auto"
+                });
+            }
+        });
+    };
+
+    window.addEventListener('mousemove', (e) => handleRepel(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+            handleRepel(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
 }
+
+
+
+
+    // Expertise Moving Headline
+    const expTitle = document.querySelector('.expertise-title-moving');
+    if (expTitle) {
+        gsap.to(expTitle, {
+            xPercent: -50,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".lusion-expertise-section",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true
+            }
+        });
+    }
+
+
+    // Expertise SVG Line
+    const expLine = document.querySelector('.expertise-anim-line');
+    if (expLine) {
+        const expLength = expLine.getTotalLength();
+        gsap.set(expLine, { strokeDasharray: expLength, strokeDashoffset: expLength });
+        gsap.to(expLine, {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".expertise-content-wrap",
+                start: "top 80%",
+                end: "bottom 50%",
+                scrub: 1
+            }
+        });
+    }
+
+    // Interactive Footer Particles (Points-based, proven approach)
+    const footerCanvas = document.getElementById('footer-particle-canvas');
+    if (footerCanvas && typeof THREE !== 'undefined') {
+        const fContainer = footerCanvas.parentElement;
+        let fW = fContainer.offsetWidth;
+        let fH = fContainer.offsetHeight;
+
+        const fScene = new THREE.Scene();
+        const fCamera = new THREE.PerspectiveCamera(50, fW / fH, 0.1, 1000);
+        fCamera.position.z = 8;
+
+        const fRenderer = new THREE.WebGLRenderer({ canvas: footerCanvas, alpha: true, antialias: true });
+        fRenderer.setSize(fW, fH);
+        fRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const fCount = 30000; // Dense but balanced
+        const fPositions = new Float32Array(fCount * 3);
+        const fSizes = new Float32Array(fCount);
+        const fTypes = new Float32Array(fCount);
+        const fOffsets = new Float32Array(fCount);
+
+        for (let i = 0; i < fCount; i++) {
+            let xDist = Math.random();
+            let xPos = xDist < 0.7 ? (Math.pow(xDist / 0.7, 1.5) * 15) - 15 : ((xDist - 0.7) / 0.3 * 15); 
+            fPositions[i * 3] = xPos;
+            
+            let yDist = Math.pow(Math.random(), 2.5);
+            let heightLimit = xPos < -5 ? 20 : (xPos < 0 ? 10 : 6);
+            fPositions[i * 3 + 1] = (yDist * heightLimit) - 10; 
+            
+            fPositions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+            
+            // Revert back to sane sizes
+            let size = Math.random() * 0.5 + 0.1; // tiny dust base size
+            if (Math.random() > 0.95) size *= 6.0; // 5% are larger distinct shapes
+            fSizes[i] = size;
+            
+            fTypes[i] = Math.floor(Math.random() * 4.0);
+            fOffsets[i] = Math.random() * Math.PI * 2.0;
+        }
+
+        const fGeo = new THREE.BufferGeometry();
+        fGeo.setAttribute('position', new THREE.BufferAttribute(fPositions, 3));
+        fGeo.setAttribute('aSize', new THREE.BufferAttribute(fSizes, 1));
+        fGeo.setAttribute('aType', new THREE.BufferAttribute(fTypes, 1));
+        fGeo.setAttribute('aOffset', new THREE.BufferAttribute(fOffsets, 1));
+
+        const fMat = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uMouse: { value: new THREE.Vector2(-999, -999) }
+            },
+            vertexShader: `
+                uniform float uTime;
+                uniform vec2 uMouse;
+                attribute float aSize;
+                attribute float aType;
+                attribute float aOffset;
+                varying float vType;
+                varying float vAlpha;
+
+                void main() {
+                    vType = aType;
+                    vec3 pos = position;
+                    
+                    // Fluid wave motion
+                    pos.y += sin(pos.x * 0.4 + uTime * 1.5 + aOffset) * 0.8;
+                    pos.x += cos(pos.y * 0.5 + uTime * 1.2 + aOffset) * 0.4;
+                    pos.z += sin(pos.x * 0.6 + uTime * 0.8) * 0.5;
+
+                    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                    
+                    // Mouse Repulsion (violent like lusion)
+                    vec2 mouseView = uMouse * 12.0; // mapping mouse to view space
+                    float dist = distance(mvPos.xy, mouseView);
+                    vAlpha = 1.0;
+                    
+                    if (dist < 5.0) {
+                        vec2 dir = normalize(mvPos.xy - mouseView);
+                        float force = (5.0 - dist) / 5.0;
+                        // Push violently away
+                        mvPos.xy += dir * force * 4.0;
+                        mvPos.z += force * 2.0; // push into screen
+                    }
+                    
+                    // INCREASED MULTIPLIER (250.0) so particles actually look large on high DPI
+                    gl_PointSize = (aSize * 70.0) * (1.0 / -mvPos.z); // Fixed crazy scale 
+                    gl_Position = projectionMatrix * mvPos;
+                }
+            `,
+            fragmentShader: `
+                varying float vType;
+                varying float vAlpha;
+                void main() {
+                    // Crisp sharp edges for the shapes
+                    vec2 p = gl_PointCoord * 2.0 - 1.0;
+                    float alpha = 0.0;
+                    
+                    if (vType < 0.5) {
+                        // Square
+                        if (abs(p.x) < 0.75 && abs(p.y) < 0.75) alpha = 1.0;
+                    } else if (vType < 1.5) {
+                        // Circle
+                        if (length(p) < 0.8) alpha = 1.0;
+                    } else if (vType < 2.5) {
+                        // Triangle
+                        float edge = step(p.y, 0.7 - abs(p.x) * 1.5);
+                        float bot = step(-0.7, p.y);
+                        alpha = edge * bot;
+                    } else {
+                        // Cross (+)
+                        float h = step(abs(p.y), 0.25) * step(abs(p.x), 0.8);
+                        float v = step(abs(p.x), 0.25) * step(abs(p.y), 0.8);
+                        alpha = max(h, v);
+                    }
+                    
+                    if (alpha < 0.1) discard;
+                    
+                    // Solid white color
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, alpha * vAlpha);
+                }
+            `,
+            transparent: true,
+            depthWrite: false
+        });
+
+        const fPoints = new THREE.Points(fGeo, fMat);
+        fScene.add(fPoints);
+
+        let fMouse = new THREE.Vector2(-999, -999);
+        let sMouse = new THREE.Vector2(-999, -999);
+
+        fContainer.addEventListener('mousemove', (e) => {
+            const rect = fContainer.getBoundingClientRect();
+            fMouse.x = ((e.clientX - rect.left) / fW) * 2 - 1;
+            fMouse.y = -((e.clientY - rect.top) / fH) * 2 + 1;
+        });
+        fContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                const rect = fContainer.getBoundingClientRect();
+                fMouse.x = ((e.touches[0].clientX - rect.left) / fW) * 2 - 1;
+                fMouse.y = -((e.touches[0].clientY - rect.top) / fH) * 2 + 1;
+            }
+        }, { passive: true });
+        fContainer.addEventListener('touchend', () => fMouse.set(-999, -999));
+        fContainer.addEventListener('mouseleave', () => fMouse.set(-999, -999));
+
+        window.addEventListener('resize', () => {
+            if (!fContainer) return;
+            fW = fContainer.offsetWidth;
+            fH = fContainer.offsetHeight;
+            fCamera.aspect = fW / fH;
+            fCamera.updateProjectionMatrix();
+            fRenderer.setSize(fW, fH);
+        });
+
+        const fClock = new THREE.Clock();
+        function animFooter() {
+            requestAnimationFrame(animFooter);
+            fMat.uniforms.uTime.value = fClock.getElapsedTime();
+            sMouse.lerp(fMouse, 0.08);
+            fMat.uniforms.uMouse.value.copy(sMouse);
+            fRenderer.render(fScene, fCamera);
+        }
+        animFooter();
+    }
+
 
 // Initialize the Modular Text Animation System
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        initAdvancedTextAnimations();
+        setTimeout(() => { initAdvancedTextAnimations(); ScrollTrigger.refresh(); }, 800);
         ScrollTrigger.sort();
         ScrollTrigger.refresh();
     });
 } else {
-    initAdvancedTextAnimations();
+    setTimeout(() => { initAdvancedTextAnimations(); ScrollTrigger.refresh(); }, 800);
     ScrollTrigger.sort();
     ScrollTrigger.refresh();
 }
+
+    // ==========================================================================
+    // GLOBAL CONTINUOUS SCROLL LINE ANIMATION
+    // ==========================================================================
+    const globalPath = document.getElementById('global-path');
+    if (globalPath) {
+        const pathLen = globalPath.getTotalLength();
+        
+        // Initial state: fully hidden
+        gsap.set(globalPath, { 
+            strokeDasharray: pathLen, 
+            strokeDashoffset: pathLen 
+        });
+
+        // 1. Growth animation linked to main body scroll
+        gsap.to(globalPath, {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+                trigger: document.body,
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            }
+        });
+
+        // 2. Color changing animation linked to main body scroll
+        // Color stops: White -> Electric Blue -> Neon Pink -> Bright Green
+        gsap.to(globalPath, {
+            stroke: (i, t) => {
+                // Return an array of colors to scrub through
+                return "#00ffcc"; 
+            },
+            ease: "none",
+            scrollTrigger: {
+                trigger: document.body,
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            }
+        });
+        
+        // Actually GSAP can scrub between an array of colors using keyframes
+        gsap.to(globalPath, {
+            keyframes: {
+                stroke: ['#ffffff', '#00d2ff', '#ff00ff', '#00ffcc', '#ffffff'],
+            },
+            ease: "none",
+            scrollTrigger: {
+                trigger: document.body,
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            }
+        });
+    }

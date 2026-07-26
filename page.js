@@ -37,6 +37,21 @@ export default function Page() {
     <!-- Custom Minimalist Cursor -->
     <div class="cursor"></div>
 
+    <!-- GLOBAL CONTINUOUS SVG SCROLL LINE -->
+    <div id="global-line-wrap">
+        <svg id="global-scroll-line" viewBox="0 0 1000 3000" preserveAspectRatio="none">
+            <path id="global-path" d="M 100 -100 
+                     C 300 300, 900 100, 800 600
+                     S 100 800, 200 1200
+                     C 400 1800, 900 1500, 700 2200
+                     S 100 2500, 500 3200" 
+                  fill="none" 
+                  stroke="#ffffff" 
+                  stroke-width="12" 
+                  stroke-linecap="round" />
+        </svg>
+    </div>
+
     <!-- Top Navigation -->
     <nav class="nav">
         <div class="logo">unravelld<span class="dot">.</span></div>
@@ -102,11 +117,7 @@ export default function Page() {
                 
                 <div class="stylescout-content-wrap">
                     <!-- The Massive Looping Lusion Line -->
-                    <div class="stylescout-line-wrap">
-                        <svg class="stylescout-svg-line" viewBox="-200 -50 1400 600" preserveAspectRatio="none">
-                            <path class="anim-line" d="M -200 500 C 0 500, 100 0, 400 0 C 700 0, 800 500, 1200 500" />
-                        </svg>
-                    </div>
+                    
 
                     <!-- The Distorting Cards -->
                     <div class="stylescout-cards-grid">
@@ -212,12 +223,7 @@ export default function Page() {
                     </div>
 
 
-                    <!-- Growing Irregular Line Behind Cards -->
-                    <div class="lusion-cards-line-wrap">
-                        <svg class="lusion-cards-svg" viewBox="-100 -100 1200 800" preserveAspectRatio="none">
-                            <path class="lusion-cards-anim-line" d="M -100 600 C 50 700, 150 200, 300 250 S 500 -50, 650 100 S 850 500, 1000 300 C 1100 150, 1200 400, 1300 350" />
-                        </svg>
-                    </div>
+                    
 
                     <!-- 3D Playing Cards Deck -->
                     <div class="lusion-cards-container">
@@ -346,14 +352,14 @@ export default function Page() {
                         </div>
                     </div>
 
-                    <!-- Interactive Particle Text CTA (WebGL Shader Shatter Effect) -->
-                    <div class="lusion-particle-cta-wrap" id="text-shatter-wrap" style="position: relative; width: 100%; height: 500px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent;">
+                    <!-- Interactive Particle Text CTA -->
+                    <div class="lusion-particle-cta-wrap" id="text-shatter-wrap" style="position: relative; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: visible; background: transparent;">
                         <!-- WebGL Canvas for Interactive Particles -->
-                        <canvas id="footer-particle-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto;"></canvas>
+                        <canvas id="footer-particle-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; z-index: 0;"></canvas>
                         
                         <!-- Fallback / Screen-reader text -->
                         <div class="lusion-cta-inner" style="pointer-events: none; position: relative; z-index: 5; text-align: center;">
-                            <span class="cta-question" style="font-size: 0.85rem; letter-spacing: 0.1em; display: block; margin-bottom: 1rem;">IS YOUR FASHION ENGINE READY TO GO WILD?</span>
+                            <span class="cta-question" style="font-size: 0.85rem; letter-spacing: 0.1em; display: block; margin-bottom: 2rem;">IS YOUR FASHION ENGINE READY TO GO WILD?</span>
                             <h2 class="cta-big-heading" style="font-size: clamp(5rem, 12vw, 12rem); font-weight: 400; line-height: 1; letter-spacing: -0.02em; color: #fff;">Let's work together!</h2>
                         </div>
                     </div>

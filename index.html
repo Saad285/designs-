@@ -1,15 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>unravelld.</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
-</head>
-<body>
+'use client';
+import { useEffect, useState } from 'react';
+
+export default function Page() {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        
+        // Ensure DOM is fully injected, then load the vanilla physics scripts
+        setTimeout(() => {
+            const loadScript = (src, type = 'text/javascript') => {
+                return new Promise((resolve) => {
+                    // Prevent duplicate injections on fast refresh
+                    if (document.querySelector(`script[src="${src}"]`)) {
+                        resolve();
+                        return;
+                    }
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.type = type;
+                    script.onload = resolve;
+                    document.body.appendChild(script);
+                });
+            };
+
+            loadScript('/script.js').then(() => {
+                loadScript('/textShatter.js', 'module');
+            });
+        }, 100);
+    }, []);
+
+    if (!mounted) return <div style={{ width: '100vw', height: '100vh', background: 'var(--bg-color)' }} />;
+
+    return (
+        <div dangerouslySetInnerHTML={{ __html: `
     <!-- Custom Minimalist Cursor -->
     <div class="cursor"></div>
 
@@ -77,10 +101,10 @@
                 </div>
                 
                 <div class="stylescout-content-wrap">
-                    <!-- The Growing Line -->
+                    <!-- The Massive Looping Lusion Line -->
                     <div class="stylescout-line-wrap">
-                        <svg class="stylescout-svg-line" viewBox="0 0 2 100" preserveAspectRatio="none">
-                            <line class="anim-line" x1="1" y1="0" x2="1" y2="100" />
+                        <svg class="stylescout-svg-line" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
+                            <path class="anim-line" d="M -100 400 C 200 450, 250 50, 500 50 C 750 50, 800 450, 1100 400" />
                         </svg>
                     </div>
 
@@ -756,20 +780,14 @@
         <div class="warp-core"></div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-                "three/examples/jsm/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
-    <script src="script.js?v=3"></script>
-    <script type="module" src="textShatter.js?v=3"></script>
-</body>
-</html>
+    
+    
+    
+    
+    
+    
+    
+    
+` }} />
+    );
+}
